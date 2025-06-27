@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🎬 Video Upload Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- 🌙 Dark Mode Toggle -->
+  <label class="theme-toggle">
+    <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()" />
+    🌙 Dark Mode
+  </label>
+
+  <!-- 🔐 Login Page -->
+  <div id="loginPage" class="glass-card">
+    <h2>🔐 Login</h2>
+    <input type="text" id="username" placeholder="Username" />
+    <input type="password" id="password" placeholder="Password" />
+    <button onclick="login()">Login</button>
+    <p id="loginError" class="error-text"></p>
+  </div>
+
+  <!-- 📋 App Page -->
+  <div id="appPage" class="glass-card hidden">
+    <h2>📅 Upload Log</h2>
+    <input type="date" id="date" />
+    <select id="platform">
+      <option value="">Select Platform</option>
+      <option value="YouTube">YouTube</option>
+      <option value="Instagram">Instagram</option>
+      <option value="Facebook">Facebook</option>
+    </select>
+    <input type="text" id="title1" placeholder="Video Title 1" />
+    <input type="text" id="title2" placeholder="Video Title 2" />
+    <input type="text" id="title3" placeholder="Video Title 3" />
+    <button onclick="addUpload()">Submit</button>
+
+    <h3>📊 Uploads</h3>
+    <div class="table-wrap">
+      <table id="uploadTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Platform</th>
+            <th>Title 1</th>
+            <th>Title 2</th>
+            <th>Title 3</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="btn-group">
+      <button onclick="downloadCSV()">⬇️ Export CSV</button>
+      <button onclick="logout()" class="logout-btn">Logout</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
