@@ -51,16 +51,27 @@ function loadUploads() {
   const uploads = JSON.parse(localStorage.getItem("uploads") || "[]");
   const table = document.querySelector("#uploadTable tbody");
   table.innerHTML = "";
-  uploads.forEach(entry => {
-    const row = `<tr>
+  uploads.forEach((entry, index) => {
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
       <td>${entry.date}</td>
       <td>${entry.platform}</td>
       <td>${entry.title1}</td>
       <td>${entry.title2}</td>
       <td>${entry.title3}</td>
-    </tr>`;
-    table.innerHTML += row;
+      <td><button class="delete-btn" onclick="deleteUpload(${index})">🗑️</button></td>
+    `;
+
+    table.appendChild(row);
   });
+}
+
+function deleteUpload(index) {
+  const uploads = JSON.parse(localStorage.getItem("uploads") || "[]");
+  uploads.splice(index, 1);
+  localStorage.setItem("uploads", JSON.stringify(uploads));
+  loadUploads();
 }
 
 function downloadCSV() {
