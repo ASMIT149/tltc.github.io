@@ -7,6 +7,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  transition: background 0.6s ease;
 }
 
 .glass-card {
@@ -19,13 +20,8 @@ body {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  transition: transform 0.5s ease, box-shadow 0.5s ease;
-  transform-style: preserve-3d;
-}
-
-.glass-card:hover {
-  transform: rotateY(1deg) rotateX(1deg) scale(1.02);
-  box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  perspective: 1000px;
+  transition: transform 0.2s ease-in-out;
 }
 
 input, select {
@@ -38,7 +34,6 @@ input, select {
   color: white;
   font-size: 16px;
   backdrop-filter: blur(5px);
-  box-shadow: 0 0 5px rgba(255,255,255,0.1);
 }
 
 input::placeholder {
@@ -48,7 +43,6 @@ input::placeholder {
 input:focus, select:focus {
   outline: none;
   background: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 0 12px rgba(0, 200, 255, 0.5);
 }
 
 button {
@@ -66,22 +60,13 @@ button {
 }
 
 button:hover {
-  transform: translateY(-2px) rotateX(2deg);
+  transform: scale(1.05);
   box-shadow: 0 8px 24px rgba(0, 114, 255, 0.6);
-}
-
-button:active {
-  transform: scale(0.97);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 .logout-btn {
   background: linear-gradient(to right, #ff416c, #ff4b2b);
   box-shadow: 0 6px 18px rgba(255, 65, 108, 0.4);
-}
-
-.logout-btn:hover {
-  box-shadow: 0 8px 24px rgba(255, 65, 108, 0.6);
 }
 
 .table-wrap {
@@ -111,18 +96,17 @@ thead {
   border-radius: 8px;
   border: none;
   font-size: 14px;
-  background: rgba(255, 0, 0, 0.25);
+  background: rgba(255, 0, 0, 0.2);
   color: white;
   backdrop-filter: blur(10px);
   transition: all 0.3s ease-in-out;
   cursor: pointer;
-  box-shadow: 0 0 8px rgba(255, 0, 0, 0.3);
 }
 
 .delete-btn:hover {
   background: rgba(255, 0, 0, 0.35);
   transform: scale(1.05);
-  box-shadow: 0 0 12px rgba(255, 50, 50, 0.5);
+  box-shadow: 0 0 8px rgba(255, 50, 50, 0.5);
 }
 
 body.dark {
@@ -135,7 +119,6 @@ body.dark {
   right: 20px;
   z-index: 1000;
   color: white;
-  font-weight: bold;
 }
 
 .hidden {
@@ -145,12 +128,4 @@ body.dark {
 .error-text {
   color: #ff8080;
   margin-top: 10px;
-  text-align: center;
-  animation: pulseError 0.8s ease-in-out;
-}
-
-@keyframes pulseError {
-  0% { transform: scale(1); color: #ff4b2b; }
-  50% { transform: scale(1.05); color: #ff8080; }
-  100% { transform: scale(1); color: #ff4b2b; }
 }
