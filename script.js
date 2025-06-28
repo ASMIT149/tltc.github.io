@@ -2,7 +2,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebas
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyCcd1CCTlJRZ2YOhbziRVdiZlvVzUHiYm4",
   authDomain: "video-tracker-7f709.firebaseapp.com",
@@ -17,7 +16,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth();
 const db = getFirestore(app);
 
-// Login
 window.login = async () => {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
@@ -31,7 +29,6 @@ window.login = async () => {
   }
 };
 
-// Auth state
 onAuthStateChanged(auth, (user) => {
   if (user) {
     document.getElementById("loginPage").classList.add("hidden");
@@ -43,12 +40,10 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// Logout
 window.logout = async () => {
   await signOut(auth);
 };
 
-// Add Upload
 window.addUpload = async () => {
   const date = document.getElementById("date").value;
   const platform = document.getElementById("platform").value;
@@ -62,7 +57,6 @@ window.addUpload = async () => {
   loadUploads();
 };
 
-// Load Uploads
 async function loadUploads() {
   const table = document.querySelector("#uploadTable tbody");
   table.innerHTML = "";
@@ -83,13 +77,11 @@ async function loadUploads() {
   });
 }
 
-// Delete
 window.deleteUpload = async (id) => {
   await deleteDoc(doc(db, "uploads", id));
   loadUploads();
 };
 
-// Export CSV
 window.downloadCSV = async () => {
   const querySnapshot = await getDocs(collection(db, "uploads"));
   let csv = "Date,Platform,Title 1,Title 2,Title 3\n";
@@ -105,7 +97,6 @@ window.downloadCSV = async () => {
   link.click();
 };
 
-// Dark Mode
 window.toggleDarkMode = () => {
   const isDark = document.getElementById("darkModeToggle").checked;
   document.body.classList.toggle("dark", isDark);
@@ -117,7 +108,6 @@ window.onload = () => {
   document.getElementById("darkModeToggle").checked = isDark;
   document.body.classList.toggle("dark", isDark);
 
-  // 3D animation
   document.querySelectorAll('.glass-card').forEach(card => {
     card.addEventListener('mousemove', e => {
       const rect = card.getBoundingClientRect();
