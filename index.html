@@ -8,6 +8,7 @@
 
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
 
   <script>
@@ -20,26 +21,24 @@
       appId: "your-app-id"
     };
     firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
     const db = firebase.firestore();
   </script>
 </head>
 <body>
-  <!-- 🌙 Dark Mode Toggle -->
   <label class="theme-toggle">
     <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()" />
     🌙 Dark Mode
   </label>
 
-  <!-- 🔐 Login Page -->
   <div id="loginPage" class="glass-card">
     <h2>🔐 Login</h2>
-    <input type="text" id="username" placeholder="Username" />
+    <input type="email" id="email" placeholder="Email" />
     <input type="password" id="password" placeholder="Password" />
     <button onclick="login()">Login</button>
     <p id="loginError" class="error-text"></p>
   </div>
 
-  <!-- 📋 App Page -->
   <div id="appPage" class="glass-card hidden">
     <h2>📅 Upload Log</h2>
     <input type="date" id="date" />
