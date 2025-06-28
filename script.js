@@ -1,3 +1,4 @@
+// Firebase Config + Setup
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
 import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
@@ -13,59 +14,82 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth();
+const auth = getAuth(app);
 const db = getFirestore(app);
 
-window.login = async () => {
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value.trim();
+// Clock
+function updateClock() {
+  const now = new Date();
+  const clock = document.getElementById("clock");
+  clock.textContent = now.toLocaleTimeString();
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// Login
+window.login = function () {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
   const error = document.getElementById("loginError");
 
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    error.textContent = "";
-  } catch (err) {
-    error.textContent = "❌ Invalid credentials.";
-  }
+  signInWithEmailAndPassword(auth, email, password)
+    .then(() => {
+      error.textContent = "";
+    })
+    .catch((err) => {
+      error.textContent = "❌ Invalid email or password.";
+    });
 };
 
-onAuthStateChanged(auth, (user) => {
+// On Auth Change
+onAuthStateChanged(auth, user => {
   if (user) {
     document.getElementById("loginPage").classList.add("hidden");
     document.getElementById("appPage").classList.remove("hidden");
     loadUploads();
   } else {
-    document.getElementById("loginPage").classList.remove("hidden");
     document.getElementById("appPage").classList.add("hidden");
+    document.getElementById("loginPage").classList.remove("hidden");
   }
 });
 
-window.logout = async () => {
-  await signOut(auth);
+// Logout
+window.logout = function () {
+  signOut(auth);
 };
 
-window.addUpload = async () => {
+// Add Upload
+window.addUpload = async function () {
   const date = document.getElementById("date").value;
   const platform = document.getElementById("platform").value;
   const title1 = document.getElementById("title1").value;
   const title2 = document.getElementById("title2").value;
   const title3 = document.getElementById("title3").value;
 
-  if (!date || !platform) return alert("Please fill in date and platform.");
+  if (!date || !platform) return alert("Please fill all required fields");
 
-  await addDoc(collection(db, "uploads"), { date, platform, title1, title2, title3 });
+  await addDoc(collection(db, "uploads"), {
+    date, platform, title1, title2, title3
+  });
+
+  document.getElementById("title1").value = "";
+  document.getElementById("title2").value = "";
+  document.getElementById("title3").value = "";
+
   loadUploads();
 };
 
+// Load Uploads
 async function loadUploads() {
   const table = document.querySelector("#uploadTable tbody");
   table.innerHTML = "";
+  const snapshot = await getDocs(collection(db, "uploads"));
+  const stats = {};
 
-  const querySnapshot = await getDocs(collection(db, "uploads"));
-  querySnapshot.forEach((docSnap) => {
+  snapshot.forEach(docSnap => {
     const entry = docSnap.data();
-    const row = document.createElement("tr");
-    row.innerHTML = `
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
       <td>${entry.date}</td>
       <td>${entry.platform}</td>
       <td>${entry.title1}</td>
@@ -73,21 +97,26 @@ async function loadUploads() {
       <td>${entry.title3}</td>
       <td><button class="delete-btn" onclick="deleteUpload('${docSnap.id}')">🗑️</button></td>
     `;
-    table.appendChild(row);
+    table.appendChild(tr);
+    stats[entry.platform] = (stats[entry.platform] || 0) + 1;
   });
+
+  updateChart(stats);
 }
 
-window.deleteUpload = async (id) => {
+// Delete
+window.deleteUpload = async function (id) {
   await deleteDoc(doc(db, "uploads", id));
   loadUploads();
 };
 
-window.downloadCSV = async () => {
-  const querySnapshot = await getDocs(collection(db, "uploads"));
+// Download CSV
+window.downloadCSV = async function () {
+  const snapshot = await getDocs(collection(db, "uploads"));
   let csv = "Date,Platform,Title 1,Title 2,Title 3\n";
-  querySnapshot.forEach((docSnap) => {
-    const u = docSnap.data();
-    csv += `${u.date},${u.platform},"${u.title1}","${u.title2}","${u.title3}"\n`;
+  snapshot.forEach(docSnap => {
+    const e = docSnap.data();
+    csv += `${e.date},${e.platform},"${e.title1}","${e.title2}","${e.title3}"\n`;
   });
 
   const blob = new Blob([csv], { type: "text/csv" });
@@ -97,26 +126,27 @@ window.downloadCSV = async () => {
   link.click();
 };
 
-window.toggleDarkMode = () => {
-  const isDark = document.getElementById("darkModeToggle").checked;
-  document.body.classList.toggle("dark", isDark);
-  localStorage.setItem("darkMode", isDark);
-};
-
-window.onload = () => {
-  const isDark = localStorage.getItem("darkMode") === "true";
-  document.getElementById("darkModeToggle").checked = isDark;
-  document.body.classList.toggle("dark", isDark);
-
-  document.querySelectorAll('.glass-card').forEach(card => {
-    card.addEventListener('mousemove', e => {
-      const rect = card.getBoundingClientRect();
-      const x = e.clientX - rect.left - rect.width / 2;
-      const y = e.clientY - rect.top - rect.height / 2;
-      card.style.transform = `rotateY(${x * 0.03}deg) rotateX(${y * -0.03}deg)`;
-    });
-    card.addEventListener('mouseleave', () => {
-      card.style.transform = 'rotateY(0deg) rotateX(0deg)';
-    });
+// Chart
+let chart;
+function updateChart(data) {
+  const ctx = document.getElementById("uploadChart").getContext("2d");
+  if (chart) chart.destroy();
+  chart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: Object.keys(data),
+      datasets: [{
+        label: "Uploads per Platform",
+        data: Object.values(data),
+        backgroundColor: ["#ff6384", "#36a2eb", "#cc65fe"]
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        title: { display: true, text: "Platform Statistics" }
+      }
+    }
   });
-};
+}
