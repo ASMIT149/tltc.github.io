@@ -23,7 +23,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-/* Inputs */
+/* Inputs & Select */
 input, select {
   width: 100%;
   padding: 12px;
@@ -45,7 +45,7 @@ input:focus, select:focus {
   background: rgba(255, 255, 255, 0.25);
 }
 
-/* 3D Buttons */
+/* Buttons */
 button {
   width: 100%;
   padding: 12px;
@@ -129,6 +129,7 @@ body.dark {
   color: white;
 }
 
+/* Utility */
 .hidden {
   display: none;
 }
@@ -136,4 +137,6 @@ body.dark {
 .error-text {
   color: #ff8080;
   margin-top: 10px;
+  font-size: 14px;
+  text-align: center;
 }
