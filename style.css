@@ -1,165 +1,191 @@
-/* === Global & Layout === */
+/* 🌌 Base Setup */
 body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  background: linear-gradient(135deg, #1e1e2f, #3e3e5e);
   color: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   overflow-x: hidden;
+  position: relative;
 }
 
-.church-title {
-  font-size: 1.8rem;
-  font-weight: bold;
-  text-align: center;
-  color: #ffea00;
-  text-shadow: 0 0 10px #ffea00, 0 0 20px #ffea00;
+/* ⚡ Glowing Neon Title */
+.main-title {
+  font-size: 2.5rem;
+  margin-top: 30px;
+  color: #0ff;
+  text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+  font-weight: 900;
+  letter-spacing: 2px;
 }
 
-.center-title {
-  margin-bottom: 30px;
+/* 🔥 Strip Light Animation */
+.strip-light {
+  position: absolute;
+  top: 0;
+  height: 4px;
+  width: 100%;
+  background: linear-gradient(90deg, transparent, #0ff, transparent);
+  animation: lightMove 3s linear infinite;
+  z-index: 1000;
 }
 
-.clock-glow {
-  position: fixed;
-  top: 10px;
-  right: 20px;
-  font-size: 18px;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 10px 20px;
-  border-radius: 20px;
-  box-shadow: 0 0 10px #00f5ff, 0 0 20px #00f5ff;
-  z-index: 999;
+@keyframes lightMove {
+  0% { background-position: -200%; }
+  100% { background-position: 200%; }
 }
 
-/* === Glass Card === */
+/* 💠 Glass Card */
 .glass-card {
-  background: rgba(255, 255, 255, 0.07);
-  backdrop-filter: blur(15px);
-  border-radius: 15px;
-  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
   padding: 30px;
-  max-width: 1100px;
-  margin: 50px auto;
-  transition: transform 0.5s ease-in-out;
-  animation: zoomFadeIn 1s ease-out;
+  margin: 40px auto;
+  width: 90%;
+  max-width: 600px;
+  box-shadow: 0 8px 24px rgba(0, 255, 255, 0.2);
+  backdrop-filter: blur(15px);
+  transition: transform 0.4s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.login-animate {
-  animation: glassShatter 1.2s ease forwards;
-}
-
-@keyframes zoomFadeIn {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-@keyframes glassShatter {
-  0% { opacity: 0; transform: scale(0.5) rotateY(180deg); }
-  100% { opacity: 1; transform: scale(1) rotateY(0deg); }
-}
-
-/* === Form Elements === */
+/* ✨ 3D Form Elements */
 input, select {
   width: 100%;
   padding: 12px;
   margin: 10px 0;
-  border: none;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
   font-size: 16px;
-  transition: 0.3s;
-}
-
-input:focus, select:focus {
-  background: rgba(255, 255, 255, 0.3);
-  outline: none;
+  backdrop-filter: blur(5px);
+  box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.3);
 }
 
 button {
   width: 100%;
   padding: 12px;
-  background: linear-gradient(135deg, #00f5ff, #0088ff);
+  margin-top: 10px;
+  background: linear-gradient(135deg, #00f2fe, #4facfe);
   border: none;
-  border-radius: 10px;
-  font-weight: bold;
+  border-radius: 12px;
   color: white;
-  box-shadow: 0 0 10px #00f5ff, 0 0 20px #0088ff;
+  font-weight: bold;
+  box-shadow: 0 6px 18px rgba(0, 255, 255, 0.4);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s ease-in-out;
 }
 
 button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 0 15px #00f5ff, 0 0 25px #0088ff;
+  transform: scale(1.05);
+  box-shadow: 0 10px 30px rgba(0, 255, 255, 0.6);
 }
 
 .logout-btn {
-  background: linear-gradient(135deg, #ff416c, #ff4b2b);
-  box-shadow: 0 0 10px #ff416c, 0 0 20px #ff4b2b;
+  background: linear-gradient(to right, #ff416c, #ff4b2b);
+  box-shadow: 0 6px 18px rgba(255, 65, 108, 0.4);
 }
 
-/* === Layout === */
-.grid-layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 30px;
-  align-items: start;
+.logout-btn:hover {
+  box-shadow: 0 8px 24px rgba(255, 65, 108, 0.6);
 }
 
+/* 📊 Table */
 .table-wrap {
   overflow-x: auto;
 }
 
-.chart-section canvas {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-}
-
-/* === Table === */
-table {
+.table-wrap table {
   width: 100%;
   border-collapse: collapse;
+  margin-top: 20px;
   background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-  overflow: hidden;
+  color: white;
+  box-shadow: 0 4px 20px rgba(0, 255, 255, 0.1);
 }
 
 th, td {
-  padding: 10px;
+  padding: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   text-align: center;
 }
 
-th {
+thead {
   background: rgba(255, 255, 255, 0.1);
 }
 
 .delete-btn {
-  background: rgba(255, 0, 0, 0.3);
-  padding: 5px 10px;
-  border-radius: 6px;
-  color: white;
-  font-size: 14px;
+  padding: 6px 12px;
+  border-radius: 8px;
   border: none;
+  font-size: 14px;
+  background: rgba(255, 0, 0, 0.2);
+  color: white;
   cursor: pointer;
+  transition: all 0.3s ease-in-out;
 }
 
 .delete-btn:hover {
-  background: rgba(255, 0, 0, 0.5);
+  background: rgba(255, 0, 0, 0.4);
+  transform: scale(1.1);
+  box-shadow: 0 0 8px rgba(255, 50, 50, 0.5);
 }
 
-/* === Utility === */
+/* 🕒 Clock Styling */
+#clock {
+  font-size: 1.5rem;
+  margin: 10px 0;
+  color: #00ffff;
+  text-shadow: 0 0 10px #00ffff;
+}
+
+/* ⚡ Chart Box */
+.chart-container {
+  margin-top: 30px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 255, 255, 0.2);
+}
+
+/* 🔄 Transitions */
 .hidden {
   display: none;
 }
 
+.animate-login {
+  animation: zoomIn 1.2s ease forwards;
+}
+
+.animate-dashboard {
+  animation: fadeInUp 1s ease forwards;
+}
+
+@keyframes zoomIn {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
 .error-text {
-  color: #ff8080;
+  color: #ff6666;
+  font-size: 0.9rem;
   margin-top: 10px;
-  font-weight: bold;
-  text-align: center;
+}
+
+/* 🌒 Dark Toggle Placeholder (can add if needed) */
+.theme-toggle {
+  position: fixed;
+  top: 10px;
+  right: 20px;
+  z-index: 100;
+  color: white;
 }
