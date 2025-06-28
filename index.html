@@ -2,88 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🎬 Video Upload Tracker</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(120deg, #1f1c2c, #928dab);
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-    }
-    .glass-card {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      padding: 30px;
-      margin: 60px auto;
-      max-width: 500px;
-      width: 90%;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-    }
-    input, select {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border-radius: 10px;
-      border: none;
-      background: rgba(255, 255, 255, 0.15);
-      color: white;
-      font-size: 16px;
-      backdrop-filter: blur(5px);
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      background: linear-gradient(135deg, #00c6ff, #0072ff);
-      border: none;
-      border-radius: 12px;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .logout-btn {
-      background: linear-gradient(to right, #ff416c, #ff4b2b);
-    }
-    .table-wrap {
-      overflow-x: auto;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      background: rgba(255, 255, 255, 0.05);
-    }
-    th, td {
-      padding: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      text-align: center;
-      color: white;
-    }
-    .delete-btn {
-      background: rgba(255, 0, 0, 0.3);
-      border-radius: 6px;
-      color: white;
-      border: none;
-      cursor: pointer;
-      padding: 6px 10px;
-    }
-    .hidden { display: none; }
-    .theme-toggle { position: fixed; top: 10px; right: 20px; }
-    .error-text { color: #ff8080; margin-top: 10px; }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <!-- 🌙 Dark Mode Toggle -->
   <label class="theme-toggle">
-    <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()" /> 🌙
+    <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()" />
+    🌙 Dark Mode
   </label>
 
+  <!-- 🔐 Login Page -->
   <div id="loginPage" class="glass-card">
     <h2>🔐 Login</h2>
     <input type="email" id="email" placeholder="Email" />
@@ -92,6 +22,7 @@
     <p id="loginError" class="error-text"></p>
   </div>
 
+  <!-- 📋 App Page -->
   <div id="appPage" class="glass-card hidden">
     <h2>📅 Upload Log</h2>
     <input type="date" id="date" />
@@ -129,108 +60,7 @@
     </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyCcd1CCTlJRZ2YOhbziRVdiZlvVzUHiYm4",
-      authDomain: "video-tracker-7f709.firebaseapp.com",
-      projectId: "video-tracker-7f709",
-      storageBucket: "video-tracker-7f709.appspot.com",
-      messagingSenderId: "6567580876",
-      appId: "1:6567580876:web:e982351a06897faea45e69",
-      measurementId: "G-554K9DJVCJ"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    const login = () => {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      signInWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          document.getElementById("loginPage").classList.add("hidden");
-          document.getElementById("appPage").classList.remove("hidden");
-          loadUploads();
-        })
-        .catch(err => {
-          document.getElementById("loginError").textContent = err.message;
-        });
-    };
-
-    const logout = () => {
-      signOut(auth);
-      document.getElementById("appPage").classList.add("hidden");
-      document.getElementById("loginPage").classList.remove("hidden");
-    };
-
-    const addUpload = async () => {
-      const date = document.getElementById("date").value;
-      const platform = document.getElementById("platform").value;
-      const title1 = document.getElementById("title1").value;
-      const title2 = document.getElementById("title2").value;
-      const title3 = document.getElementById("title3").value;
-      if (!date || !platform) return alert("Fill all required fields");
-      await addDoc(collection(db, "uploads"), { date, platform, title1, title2, title3 });
-      loadUploads();
-    };
-
-    const loadUploads = async () => {
-      const table = document.querySelector("#uploadTable tbody");
-      table.innerHTML = "";
-      const querySnapshot = await getDocs(collection(db, "uploads"));
-      querySnapshot.forEach(docSnap => {
-        const data = docSnap.data();
-        const row = `<tr>
-          <td>${data.date}</td>
-          <td>${data.platform}</td>
-          <td>${data.title1}</td>
-          <td>${data.title2}</td>
-          <td>${data.title3}</td>
-          <td><button class='delete-btn' onclick='deleteUpload("${docSnap.id}")'>🗑️</button></td>
-        </tr>`;
-        table.innerHTML += row;
-      });
-    };
-
-    window.deleteUpload = async (id) => {
-      await deleteDoc(doc(db, "uploads", id));
-      loadUploads();
-    };
-
-    window.downloadCSV = async () => {
-      const querySnapshot = await getDocs(collection(db, "uploads"));
-      let csv = "Date,Platform,Title 1,Title 2,Title 3\n";
-      querySnapshot.forEach(d => {
-        const u = d.data();
-        csv += `${u.date},${u.platform},"${u.title1}","${u.title2}","${u.title3}"\n`;
-      });
-      const blob = new Blob([csv], { type: "text/csv" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "uploads.csv";
-      link.click();
-    };
-
-    const toggleDarkMode = () => {
-      const isDark = document.getElementById("darkModeToggle").checked;
-      document.body.classList.toggle("dark", isDark);
-    };
-
-    onAuthStateChanged(auth, user => {
-      if (user) {
-        document.getElementById("loginPage").classList.add("hidden");
-        document.getElementById("appPage").classList.remove("hidden");
-        loadUploads();
-      } else {
-        document.getElementById("appPage").classList.add("hidden");
-        document.getElementById("loginPage").classList.remove("hidden");
-      }
-    });
-  </script>
+  <!-- Firebase -->
+  <script type="module" src="script.js"></script>
 </body>
 </html>
