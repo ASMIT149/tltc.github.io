@@ -1,26 +1,25 @@
-const USERNAME = "tltc";
-const PASSWORD = "tltc";
-
 function login() {
-  const user = document.getElementById("username").value;
-  const pass = document.getElementById("password").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
   const error = document.getElementById("loginError");
 
-  if (user === USERNAME && pass === PASSWORD) {
-    sessionStorage.setItem("loggedIn", "true");
-    document.getElementById("loginPage").classList.add("hidden");
-    document.getElementById("appPage").classList.remove("hidden");
-    error.textContent = "";
-    loadUploads();
-  } else {
-    error.textContent = "❌ Invalid credentials.";
-  }
+  auth.signInWithEmailAndPassword(email, password)
+    .then(() => {
+      document.getElementById("loginPage").classList.add("hidden");
+      document.getElementById("appPage").classList.remove("hidden");
+      error.textContent = "";
+      loadUploads();
+    })
+    .catch(() => {
+      error.textContent = "❌ Login failed. Check credentials.";
+    });
 }
 
 function logout() {
-  sessionStorage.removeItem("loggedIn");
-  document.getElementById("appPage").classList.add("hidden");
-  document.getElementById("loginPage").classList.remove("hidden");
+  auth.signOut().then(() => {
+    document.getElementById("appPage").classList.add("hidden");
+    document.getElementById("loginPage").classList.remove("hidden");
+  });
 }
 
 function addUpload() {
@@ -83,7 +82,7 @@ function downloadCSV() {
       rows.push([data.date, data.platform, data.title1, data.title2, data.title3]);
     });
 
-    const csvContent = rows.map(r => r.join(",")).join("\n");
+    const csvContent = rows.map(r => r.join(",")).join("\\n");
     const blob = new Blob([csvContent], { type: "text/csv" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
@@ -98,14 +97,17 @@ function toggleDarkMode() {
   localStorage.setItem("darkMode", isDark);
 }
 
-window.onload = () => {
-  const isLoggedIn = sessionStorage.getItem("loggedIn") === "true";
+auth.onAuthStateChanged((user) => {
   const isDark = localStorage.getItem("darkMode") === "true";
   document.getElementById("darkModeToggle").checked = isDark;
   document.body.classList.toggle("dark", isDark);
-  if (isLoggedIn) {
+
+  if (user) {
     document.getElementById("loginPage").classList.add("hidden");
     document.getElementById("appPage").classList.remove("hidden");
     loadUploads();
+  } else {
+    document.getElementById("appPage").classList.add("hidden");
+    document.getElementById("loginPage").classList.remove("hidden");
   }
-};
+});
