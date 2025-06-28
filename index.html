@@ -2,20 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🎬 Video Upload Tracker</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-
-  <!-- 🌙 Dark Mode Toggle -->
-  <label class="theme-toggle">
-    <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()" />
-    🌙 Dark Mode
-  </label>
+  <!-- 🕒 Live Clock -->
+  <div id="clock" class="clock-glow"></div>
 
   <!-- 🔐 Login Page -->
-  <div id="loginPage" class="glass-card">
+  <div id="loginPage" class="glass-card login-animate">
+    <h1 class="church-title">THE LAST TRUMPET CHURCH</h1>
     <h2>🔐 Login</h2>
     <input type="email" id="email" placeholder="Email" />
     <input type="password" id="password" placeholder="Password" />
@@ -24,35 +22,50 @@
   </div>
 
   <!-- 📋 App Page -->
-  <div id="appPage" class="glass-card hidden">
-    <h2>📅 Upload Log</h2>
-    <input type="date" id="date" />
-    <select id="platform">
-      <option value="">Select Platform</option>
-      <option value="YouTube">YouTube</option>
-      <option value="Instagram">Instagram</option>
-      <option value="Facebook">Facebook</option>
-    </select>
-    <input type="text" id="title1" placeholder="Video Title 1" />
-    <input type="text" id="title2" placeholder="Video Title 2" />
-    <input type="text" id="title3" placeholder="Video Title 3" />
-    <button onclick="addUpload()">Submit</button>
+  <div id="appPage" class="glass-card hidden dashboard">
+    <h1 class="church-title center-title">THE LAST TRUMPET CHURCH</h1>
+    <div class="grid-layout">
+      <!-- Upload Form -->
+      <div class="upload-section">
+        <h2>🗓️ Upload Log</h2>
+        <input type="date" id="date" />
+        <select id="platform">
+          <option value="">Select Platform</option>
+          <option value="YouTube">YouTube</option>
+          <option value="Instagram">Instagram</option>
+          <option value="Facebook">Facebook</option>
+        </select>
+        <input type="text" id="title1" placeholder="Video Title 1" />
+        <input type="text" id="title2" placeholder="Video Title 2" />
+        <input type="text" id="title3" placeholder="Video Title 3" />
+        <button onclick="addUpload()">Submit</button>
+      </div>
 
-    <h3>📊 Uploads</h3>
-    <div class="table-wrap">
-      <table id="uploadTable">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Platform</th>
-            <th>Title 1</th>
-            <th>Title 2</th>
-            <th>Title 3</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+      <!-- Upload Table -->
+      <div class="table-section">
+        <h3>📊 Uploads</h3>
+        <div class="table-wrap">
+          <table id="uploadTable">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Platform</th>
+                <th>Title 1</th>
+                <th>Title 2</th>
+                <th>Title 3</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Statistics -->
+      <div class="chart-section">
+        <h3>📈 Upload Stats</h3>
+        <canvas id="uploadChart"></canvas>
+      </div>
     </div>
 
     <div class="btn-group">
@@ -61,7 +74,6 @@
     </div>
   </div>
 
-  <!-- Firebase Script -->
   <script type="module" src="script.js"></script>
 </body>
 </html>
