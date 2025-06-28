@@ -2,35 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🎬 Video Upload Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎨 Video Upload Tracker</title>
   <link rel="stylesheet" href="style.css" />
-
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-
-  <script>
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "your-app.firebaseapp.com",
-      projectId: "your-project-id",
-      storageBucket: "your-app.appspot.com",
-      messagingSenderId: "your-sender-id",
-      appId: "your-app-id"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-  </script>
 </head>
 <body>
+  <!-- 🌙 Dark Mode Toggle -->
   <label class="theme-toggle">
     <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()" />
     🌙 Dark Mode
   </label>
 
+  <!-- 🔐 Login Page -->
   <div id="loginPage" class="glass-card">
     <h2>🔐 Login</h2>
     <input type="email" id="email" placeholder="Email" />
@@ -39,8 +22,9 @@
     <p id="loginError" class="error-text"></p>
   </div>
 
+  <!-- 📋 App Page -->
   <div id="appPage" class="glass-card hidden">
-    <h2>📅 Upload Log</h2>
+    <h2>🗕️ Upload Log</h2>
     <input type="date" id="date" />
     <select id="platform">
       <option value="">Select Platform</option>
@@ -76,6 +60,31 @@
     </div>
   </div>
 
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js';
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCcd1CCTlJRZ2YOhbziRVdiZlvVzUHiYm4",
+      authDomain: "video-tracker-7f709.firebaseapp.com",
+      projectId: "video-tracker-7f709",
+      storageBucket: "video-tracker-7f709.firebasestorage.app",
+      messagingSenderId: "6567580876",
+      appId: "1:6567580876:web:e982351a06897faea45e69",
+      measurementId: "G-554K9DJVCJ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    window.auth = auth;
+    window.db = db;
+  </script>
+
+  <!-- App Logic -->
   <script src="script.js"></script>
 </body>
 </html>
