@@ -35,62 +35,61 @@ function addUpload() {
     return;
   }
 
-  const entry = { date, platform, title1, title2, title3 };
-  const uploads = JSON.parse(localStorage.getItem("uploads") || "[]");
-  uploads.push(entry);
-  localStorage.setItem("uploads", JSON.stringify(uploads));
+  db.collection("uploads").add({
+    date,
+    platform,
+    title1,
+    title2,
+    title3,
+    timestamp: Date.now()
+  });
 
   document.getElementById("title1").value = "";
   document.getElementById("title2").value = "";
   document.getElementById("title3").value = "";
-
-  loadUploads();
+  document.getElementById("date").value = "";
+  document.getElementById("platform").value = "";
 }
 
 function loadUploads() {
-  const uploads = JSON.parse(localStorage.getItem("uploads") || "[]");
-  const table = document.querySelector("#uploadTable tbody");
-  table.innerHTML = "";
-  uploads.forEach((entry, index) => {
-    const row = document.createElement("tr");
-
-    row.innerHTML = `
-      <td>${entry.date}</td>
-      <td>${entry.platform}</td>
-      <td>${entry.title1}</td>
-      <td>${entry.title2}</td>
-      <td>${entry.title3}</td>
-      <td><button class="delete-btn" onclick="deleteUpload(${index})">🗑️</button></td>
-    `;
-
-    table.appendChild(row);
+  db.collection("uploads").orderBy("timestamp", "desc").onSnapshot(snapshot => {
+    const table = document.querySelector("#uploadTable tbody");
+    table.innerHTML = "";
+    snapshot.forEach(doc => {
+      const entry = doc.data();
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${entry.date}</td>
+        <td>${entry.platform}</td>
+        <td>${entry.title1}</td>
+        <td>${entry.title2}</td>
+        <td>${entry.title3}</td>
+        <td><button class="delete-btn" onclick="deleteUpload('${doc.id}')">🗑️</button></td>
+      `;
+      table.appendChild(row);
+    });
   });
 }
 
-function deleteUpload(index) {
-  const uploads = JSON.parse(localStorage.getItem("uploads") || "[]");
-  uploads.splice(index, 1);
-  localStorage.setItem("uploads", JSON.stringify(uploads));
-  loadUploads();
+function deleteUpload(id) {
+  db.collection("uploads").doc(id).delete();
 }
 
 function downloadCSV() {
-  const uploads = JSON.parse(localStorage.getItem("uploads") || "[]");
-  if (!uploads.length) {
-    alert("No data to export.");
-    return;
-  }
+  db.collection("uploads").orderBy("timestamp", "desc").get().then(snapshot => {
+    const rows = [["Date", "Platform", "Title 1", "Title 2", "Title 3"]];
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      rows.push([data.date, data.platform, data.title1, data.title2, data.title3]);
+    });
 
-  let csv = "Date,Platform,Title 1,Title 2,Title 3\n";
-  uploads.forEach(u => {
-    csv += `${u.date},${u.platform},"${u.title1}","${u.title2}","${u.title3}"\n`;
+    const csvContent = rows.map(r => r.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "uploads.csv";
+    link.click();
   });
-
-  const blob = new Blob([csv], { type: "text/csv" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "uploads.csv";
-  link.click();
 }
 
 function toggleDarkMode() {
@@ -102,10 +101,8 @@ function toggleDarkMode() {
 window.onload = () => {
   const isLoggedIn = sessionStorage.getItem("loggedIn") === "true";
   const isDark = localStorage.getItem("darkMode") === "true";
-
   document.getElementById("darkModeToggle").checked = isDark;
   document.body.classList.toggle("dark", isDark);
-
   if (isLoggedIn) {
     document.getElementById("loginPage").classList.add("hidden");
     document.getElementById("appPage").classList.remove("hidden");
