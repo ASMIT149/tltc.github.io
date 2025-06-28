@@ -1,7 +1,19 @@
 // Firebase Config + Setup
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCcd1CCTlJRZ2YOhbziRVdiZlvVzUHiYm4",
@@ -17,16 +29,15 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Clock
+// ⏰ Clock
 function updateClock() {
   const now = new Date();
-  const clock = document.getElementById("clock");
-  clock.textContent = now.toLocaleTimeString();
+  document.getElementById("clock").textContent = now.toLocaleTimeString();
 }
 setInterval(updateClock, 1000);
 updateClock();
 
-// Login
+// 🔐 Login
 window.login = function () {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -41,24 +52,26 @@ window.login = function () {
     });
 };
 
-// On Auth Change
+// 👤 Auth State Check
 onAuthStateChanged(auth, user => {
   if (user) {
     document.getElementById("loginPage").classList.add("hidden");
     document.getElementById("appPage").classList.remove("hidden");
+    document.getElementById("appPage").classList.add("animate-dashboard");
     loadUploads();
   } else {
     document.getElementById("appPage").classList.add("hidden");
     document.getElementById("loginPage").classList.remove("hidden");
+    document.getElementById("loginPage").classList.add("animate-login");
   }
 });
 
-// Logout
+// 🚪 Logout
 window.logout = function () {
   signOut(auth);
 };
 
-// Add Upload
+// ➕ Add Upload
 window.addUpload = async function () {
   const date = document.getElementById("date").value;
   const platform = document.getElementById("platform").value;
@@ -79,7 +92,7 @@ window.addUpload = async function () {
   loadUploads();
 };
 
-// Load Uploads
+// 📥 Load Uploads
 async function loadUploads() {
   const table = document.querySelector("#uploadTable tbody");
   table.innerHTML = "";
@@ -104,13 +117,13 @@ async function loadUploads() {
   updateChart(stats);
 }
 
-// Delete
+// 🗑️ Delete Upload
 window.deleteUpload = async function (id) {
   await deleteDoc(doc(db, "uploads", id));
   loadUploads();
 };
 
-// Download CSV
+// 📤 Download CSV
 window.downloadCSV = async function () {
   const snapshot = await getDocs(collection(db, "uploads"));
   let csv = "Date,Platform,Title 1,Title 2,Title 3\n";
@@ -126,7 +139,7 @@ window.downloadCSV = async function () {
   link.click();
 };
 
-// Chart
+// 📊 Chart
 let chart;
 function updateChart(data) {
   const ctx = document.getElementById("uploadChart").getContext("2d");
@@ -143,9 +156,20 @@ function updateChart(data) {
     },
     options: {
       responsive: true,
+      animation: {
+        duration: 1200
+      },
       plugins: {
         legend: { display: false },
-        title: { display: true, text: "Platform Statistics" }
+        title: { display: true, text: "Platform Statistics", color: "#0ff" }
+      },
+      scales: {
+        x: {
+          ticks: { color: "#fff" }
+        },
+        y: {
+          ticks: { color: "#fff" }
+        }
       }
     }
   });
