@@ -1,156 +1,117 @@
-/* 🌌 iOS 15/16 Style Liquid Glass UI */
+/* 🌌 Base Setup */
 body {
   margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background: linear-gradient(135deg, #1f1f2e, #2c2c3c);
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #1e1e2f, #3e3e5e);
   color: #fff;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   overflow-x: hidden;
   position: relative;
 }
 
-/* 💎 Glassmorphism Container */
-.glass-card {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-  border-radius: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 40px;
-  width: 90%;
-  max-width: 420px;
-  transition: all 0.4s ease-in-out;
-}
-
-/* 🎨 Title Glowing */
+/* ⚡ Glowing Neon Title */
 .main-title {
   font-size: 2.5rem;
+  margin-top: 30px;
+  color: #0ff;
+  text-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
   font-weight: 900;
-  text-align: center;
-  color: #0ff;
-  margin-bottom: 20px;
-  text-shadow: 0 0 8px #0ff, 0 0 16px #0ff;
+  letter-spacing: 2px;
 }
 
-/* 🕒 Clock */
-#clock {
-  font-size: 1.25rem;
-  color: #0ff;
-  text-align: center;
-  margin-bottom: 30px;
-  text-shadow: 0 0 6px #0ff;
-}
-
-/* ✨ Form Fields */
-input[type="email"],
-input[type="password"],
-input[type="text"],
-input[type="date"],
-select {
+/* 🔥 Strip Light Animation */
+.strip-light {
+  position: absolute;
+  top: 0;
+  height: 4px;
   width: 100%;
-  padding: 14px;
-  margin: 12px 0;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.1);
+  background: linear-gradient(90deg, transparent, #0ff, transparent);
+  animation: lightMove 3s linear infinite;
+  z-index: 1000;
+}
+
+@keyframes lightMove {
+  0% { background-position: -200%; }
+  100% { background-position: 200%; }
+}
+
+/* 💠 Liquid Glass Card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 20px;
+  padding: 30px;
+  margin: 40px auto;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 8px 40px rgba(0, 255, 255, 0.3);
+  backdrop-filter: blur(25px);
+  transition: transform 0.4s ease;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  text-align: center;
+}
+
+/* ✨ 3D Form Elements */
+input, select {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 10px;
   border: none;
-  color: white;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
   font-size: 16px;
-  box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.3);
-  backdrop-filter: blur(5px);
+  backdrop-filter: blur(10px);
+  box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.4);
   outline: none;
+}
+
+input::placeholder {
+  color: #ccc;
 }
 
 button {
   width: 100%;
-  padding: 14px;
-  margin-top: 14px;
-  border-radius: 14px;
-  border: none;
+  padding: 12px;
+  margin-top: 10px;
   background: linear-gradient(135deg, #00f2fe, #4facfe);
+  border: none;
+  border-radius: 12px;
   color: white;
-  font-size: 1rem;
-  font-weight: 600;
-  box-shadow: 0 8px 20px rgba(0, 255, 255, 0.3);
+  font-weight: bold;
+  box-shadow: 0 6px 18px rgba(0, 255, 255, 0.4);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s ease-in-out;
 }
 
 button:hover {
-  transform: scale(1.04);
-  box-shadow: 0 10px 30px rgba(0, 255, 255, 0.5);
+  transform: scale(1.05);
+  box-shadow: 0 10px 30px rgba(0, 255, 255, 0.6);
 }
 
-/* 🔗 Links */
-.glass-card a {
-  color: #0ff;
-  font-size: 0.9rem;
-  text-decoration: none;
-  display: inline-block;
-  margin-top: 12px;
-  transition: 0.2s;
+.logout-btn {
+  background: linear-gradient(to right, #ff416c, #ff4b2b);
+  box-shadow: 0 6px 18px rgba(255, 65, 108, 0.4);
 }
 
-.glass-card a:hover {
-  text-decoration: underline;
-  color: #00e6e6;
+.logout-btn:hover {
+  box-shadow: 0 8px 24px rgba(255, 65, 108, 0.6);
 }
 
-/* 🧊 Hidden Elements */
-.hidden {
-  display: none;
+/* 📊 Table */
+.table-wrap {
+  overflow-x: auto;
 }
 
-/* 🪄 Animations */
-@keyframes fadeInScale {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.animate-in {
-  animation: fadeInScale 0.6s ease-out forwards;
-}
-
-/* 🧠 Error Message */
-.error-text {
-  color: #ff6666;
-  margin-top: 10px;
-  font-size: 0.9rem;
-  text-align: center;
-}
-
-/* 📊 Chart Section */
-.chart-container {
-  margin-top: 30px;
-  padding: 24px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(15px);
-  box-shadow: 0 4px 12px rgba(0, 255, 255, 0.2);
-}
-
-canvas {
-  max-width: 100%;
-}
-
-/* 📋 Table */
 .table-wrap table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 24px;
+  margin-top: 20px;
   background: rgba(255, 255, 255, 0.05);
   color: white;
+  box-shadow: 0 4px 20px rgba(0, 255, 255, 0.1);
 }
 
 th, td {
@@ -160,23 +121,95 @@ th, td {
 }
 
 thead {
-  background: rgba(255, 255, 255, 0.08);
-  color: #0ff;
+  background: rgba(255, 255, 255, 0.1);
 }
 
-/* 📤 Delete Button */
 .delete-btn {
-  background: rgba(255, 0, 0, 0.3);
-  border: none;
-  border-radius: 10px;
   padding: 6px 12px;
-  color: white;
+  border-radius: 8px;
+  border: none;
   font-size: 14px;
+  background: rgba(255, 0, 0, 0.2);
+  color: white;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease-in-out;
 }
 
 .delete-btn:hover {
-  background: rgba(255, 0, 0, 0.6);
-  box-shadow: 0 0 6px rgba(255, 0, 0, 0.5);
+  background: rgba(255, 0, 0, 0.4);
+  transform: scale(1.1);
+  box-shadow: 0 0 8px rgba(255, 50, 50, 0.5);
+}
+
+/* 🕒 Clock Styling */
+#clock {
+  font-size: 1.5rem;
+  margin: 10px 0;
+  color: #00ffff;
+  text-shadow: 0 0 10px #00ffff;
+}
+
+/* ⚡ Chart Box */
+.chart-container {
+  margin-top: 30px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 255, 255, 0.2);
+}
+
+/* 🔄 Transitions */
+.hidden {
+  display: none;
+}
+
+.animate-login {
+  animation: zoomIn 1.2s ease forwards;
+}
+
+.animate-dashboard {
+  animation: fadeInUp 1s ease forwards;
+}
+
+@keyframes zoomIn {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.error-text {
+  color: #ff6666;
+  font-size: 0.9rem;
+  margin-top: 10px;
+}
+
+/* 🌒 Dark Toggle Placeholder (can add if needed) */
+.theme-toggle {
+  position: fixed;
+  top: 10px;
+  right: 20px;
+  z-index: 100;
+  color: white;
+}
+
+/* 🧾 Auth Links */
+.auth-links {
+  margin-top: 12px;
+  font-size: 0.9rem;
+  color: #eee;
+}
+
+.auth-links a {
+  color: #0ff;
+  margin: 0 6px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.auth-links a:hover {
+  text-decoration: underline;
 }
