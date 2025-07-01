@@ -7,31 +7,44 @@
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="animated-bg">
-  <!-- 🌟 Strip Light Effect -->
+<body>
+
   <div class="strip-light"></div>
 
-  <!-- 🔔 Church Title -->
-  <h1 class="main-title glow-text">THE LAST TRUMPET CHURCH</h1>
+  <h1 class="main-title">THE LAST TRUMPET CHURCH</h1>
+  <div id="clock"></div>
 
-  <!-- 🕒 Clock -->
-  <div id="clock" class="clock-glow"></div>
+  <!-- 🔐 Auth Container -->
+  <div class="glass-card" id="authBox">
+    <div id="loginForm">
+      <h2>🔐 Login</h2>
+      <input type="email" id="email" placeholder="Email" />
+      <input type="password" id="password" placeholder="Password" />
+      <button onclick="login()">Login</button>
+      <p class="switch-link" onclick="toggleForms('signup')">Don't have an account? Sign up</p>
+      <p class="switch-link" onclick="toggleForms('forgot')">Forgot password?</p>
+      <p id="loginError" class="error-text"></p>
+    </div>
 
-  <!-- 🔐 Auth Card -->
-  <div id="authCard" class="glass-card animate-login">
-    <h2 id="formTitle">Sign In</h2>
-    <input type="email" id="email" placeholder="Email" />
-    <input type="password" id="password" placeholder="Password" />
-    <input type="password" id="confirmPassword" placeholder="Confirm Password" class="hidden" />
-    <button id="submitBtn" onclick="signIn()">Sign In</button>
-    <p id="loginError" class="error-text"></p>
-    <p>
-      <span id="toggleForm">Don't have an account? <a href="#" onclick="toggleSignUp(true)">Sign Up</a></span><br>
-      <a href="#" onclick="forgotPassword()">Forgot Password?</a>
-    </p>
+    <div id="signupForm" class="hidden">
+      <h2>📝 Sign Up</h2>
+      <input type="email" id="signupEmail" placeholder="Email" />
+      <input type="password" id="signupPassword" placeholder="Password" />
+      <button onclick="signUp()">Create Account</button>
+      <p class="switch-link" onclick="toggleForms('login')">Already have an account? Log in</p>
+      <p id="signupError" class="error-text"></p>
+    </div>
+
+    <div id="forgotForm" class="hidden">
+      <h2>🔁 Reset Password</h2>
+      <input type="email" id="forgotEmail" placeholder="Enter your email" />
+      <button onclick="resetPassword()">Send Reset Link</button>
+      <p class="switch-link" onclick="toggleForms('login')">Back to login</p>
+      <p id="forgotError" class="error-text"></p>
+    </div>
   </div>
 
-  <!-- 📋 App Page -->
+  <!-- App Dashboard -->
   <div id="appPage" class="glass-card hidden animate-dashboard">
     <h2>📅 Upload Log</h2>
     <input type="date" id="date" />
@@ -46,16 +59,11 @@
     <input type="text" id="title3" placeholder="Video Title 3" />
     <button onclick="addUpload()">Submit</button>
 
-    <!-- 📊 Charts -->
     <div class="chart-container">
-      <h4 class="glow-sub">Uploads Per Platform</h4>
       <canvas id="uploadChart"></canvas>
-      <h4 class="glow-sub">Upload Distribution</h4>
-      <canvas id="uploadPie"></canvas>
+      <canvas id="uploadPieChart" style="margin-top: 20px;"></canvas>
     </div>
 
-    <!-- 📜 Upload Table -->
-    <h3>📊 Uploads</h3>
     <div class="table-wrap">
       <table id="uploadTable">
         <thead>
@@ -72,10 +80,8 @@
       </table>
     </div>
 
-    <div class="btn-group">
-      <button onclick="downloadCSV()">⬇️ Export CSV</button>
-      <button onclick="logout()" class="logout-btn">Logout</button>
-    </div>
+    <button onclick="downloadCSV()">⬇️ Export CSV</button>
+    <button class="logout-btn" onclick="logout()">Logout</button>
   </div>
 
   <script type="module" src="script.js"></script>
