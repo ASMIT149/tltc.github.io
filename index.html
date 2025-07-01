@@ -3,56 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>THE LAST TRUMPET CHURCH</title>
+  <title>🎬 THE LAST TRUMPET CHURCH</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
-  <!-- Strip Light Animation -->
+<body class="animated-bg">
+  <!-- ✨ Top Bar Strip -->
   <div class="strip-light"></div>
 
-  <!-- App Title -->
+  <!-- 📎 Title -->
   <h1 class="main-title glow-text">THE LAST TRUMPET CHURCH</h1>
 
-  <!-- Clock -->
-  <div id="clock"></div>
+  <!-- 🕒 Clock -->
+  <div id="clock" class="clock-glow"></div>
 
-  <!-- Auth Container -->
-  <div id="authContainer" class="glass-card animate-login">
-    <!-- Login Form -->
-    <div id="loginForm">
-      <h2>Login</h2>
-      <input type="email" id="loginEmail" placeholder="Email" />
-      <input type="password" id="loginPassword" placeholder="Password" />
-      <button onclick="login()">Login</button>
-      <p><a href="#" onclick="showForgotPassword()">Forgot Password?</a></p>
-      <p>Don't have an account? <a href="#" onclick="toggleForms()">Sign up</a></p>
-      <p class="error-text" id="loginError"></p>
-    </div>
-
-    <!-- Signup Form -->
-    <div id="signupForm" class="hidden">
-      <h2>Sign Up</h2>
-      <input type="email" id="signupEmail" placeholder="Email" />
-      <input type="password" id="signupPassword" placeholder="Password" />
-      <button onclick="signup()">Sign Up</button>
-      <p>Already have an account? <a href="#" onclick="toggleForms()">Login</a></p>
-      <p class="error-text" id="signupError"></p>
-    </div>
-
-    <!-- Forgot Password -->
-    <div id="forgotPasswordForm" class="hidden">
-      <h2>Reset Password</h2>
-      <input type="email" id="resetEmail" placeholder="Enter your email" />
-      <button onclick="resetPassword()">Send Reset Email</button>
-      <p><a href="#" onclick="toggleForms('login')">Back to Login</a></p>
-      <p class="error-text" id="resetError"></p>
-    </div>
+  <!-- 🔒 Auth Pages -->
+  <div id="authCard" class="glass-card animate-login">
+    <h2 id="formTitle">Sign In</h2>
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <button id="authButton" onclick="signIn()">Sign In</button>
+    <p class="link-text">Don't have an account? <span onclick="toggleForm(true)">Sign Up</span></p>
+    <p class="link-text">Forgot password? <span onclick="resetPassword()">Reset</span></p>
+    <p id="authError" class="error-text"></p>
   </div>
 
-  <!-- Dashboard -->
+  <!-- 📋 Dashboard -->
   <div id="appPage" class="glass-card hidden animate-dashboard">
-    <h2>Upload Tracker</h2>
+    <h2>Upload Log</h2>
     <input type="date" id="date" />
     <select id="platform">
       <option value="">Select Platform</option>
@@ -65,7 +43,13 @@
     <input type="text" id="title3" placeholder="Video Title 3" />
     <button onclick="addUpload()">Submit</button>
 
-    <!-- Upload Table -->
+    <!-- 📊 Charts -->
+    <div class="chart-container">
+      <canvas id="uploadChart"></canvas>
+      <canvas id="pieChart" style="margin-top:30px;"></canvas>
+    </div>
+
+    <!-- 📄 Table -->
     <div class="table-wrap">
       <table id="uploadTable">
         <thead>
@@ -82,19 +66,13 @@
       </table>
     </div>
 
-    <!-- Chart Area -->
-    <div class="chart-container">
-      <canvas id="uploadChart"></canvas>
-      <canvas id="pieChart" style="margin-top: 20px;"></canvas>
-    </div>
-
+    <!-- 📥 Buttons -->
     <div class="btn-group">
-      <button onclick="downloadCSV()">Download CSV</button>
+      <button onclick="downloadCSV()">⬇️ Export CSV</button>
       <button onclick="logout()" class="logout-btn">Logout</button>
     </div>
   </div>
 
-  <!-- Scripts -->
   <script type="module" src="script.js"></script>
 </body>
 </html>
