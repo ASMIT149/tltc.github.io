@@ -2,89 +2,51 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🎬 THE LAST TRUMPET CHURCH</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>THE LAST TRUMPET CHURCH</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="animated-bg">
-
-  <!-- 🌟 Strip Light -->
   <div class="strip-light"></div>
-
-  <!-- 💒 Title -->
   <h1 class="main-title glow-text">THE LAST TRUMPET CHURCH</h1>
+  <div id="clock"></div>
 
-  <!-- ⏰ Clock -->
-  <div id="clock" class="clock-glow"></div>
-
-  <!-- 🔐 Auth Container -->
+  <!-- 🔐 Authentication Form -->
   <div id="authCard" class="glass-card animate-login">
     <div id="loginSection">
-      <h2>🔐 Sign In</h2>
-      <input type="email" id="email" placeholder="Email" />
-      <input type="password" id="password" placeholder="Password" />
+      <h2>🔐 Login</h2>
+      <input type="email" id="loginEmail" placeholder="Email" />
+      <input type="password" id="loginPassword" placeholder="Password" />
       <button onclick="login()">Login</button>
-      <p class="link-text">Don't have an account? <a href="#" onclick="toggleForm(true)">Sign Up</a></p>
-      <p id="loginError" class="error-text"></p>
+      <p class="error-text" id="loginError"></p>
+      <p><a href="#" onclick="showReset()">Forgot password?</a></p>
+      <p>Don't have an account? <a href="#" onclick="toggleForm(true)">Sign Up</a></p>
     </div>
-
     <div id="signupSection" class="hidden">
       <h2>📝 Sign Up</h2>
       <input type="email" id="signupEmail" placeholder="Email" />
       <input type="password" id="signupPassword" placeholder="Password" />
       <button onclick="signup()">Register</button>
-      <p class="link-text">Already have an account? <a href="#" onclick="toggleForm(false)">Sign In</a></p>
-      <p id="signupError" class="error-text"></p>
+      <p class="error-text" id="signupError"></p>
+      <p>Already have an account? <a href="#" onclick="toggleForm(false)">Sign In</a></p>
+    </div>
+    <div id="resetSection" class="hidden">
+      <h2>🔑 Reset Password</h2>
+      <input type="email" id="resetEmail" placeholder="Enter your email" />
+      <button onclick="resetPassword()">Send Reset Email</button>
+      <p class="error-text" id="resetError"></p>
+      <p><a href="#" onclick="toggleForm(false)">Back to Login</a></p>
     </div>
   </div>
 
-  <!-- 📋 App Page -->
+  <!-- 📋 App Page (Hidden initially) -->
   <div id="appPage" class="glass-card hidden animate-dashboard">
-    <h2>📅 Upload Log</h2>
-    <input type="date" id="date" />
-    <select id="platform">
-      <option value="">Select Platform</option>
-      <option value="YouTube">YouTube</option>
-      <option value="Instagram">Instagram</option>
-      <option value="Facebook">Facebook</option>
-    </select>
-    <input type="text" id="title1" placeholder="Video Title 1" />
-    <input type="text" id="title2" placeholder="Video Title 2" />
-    <input type="text" id="title3" placeholder="Video Title 3" />
-    <button onclick="addUpload()">Submit</button>
-
-    <!-- 📊 Charts -->
-    <div class="chart-container">
-      <canvas id="uploadChart"></canvas>
-      <canvas id="pieChart" style="margin-top: 40px;"></canvas>
-    </div>
-
-    <!-- 📜 Upload Table -->
-    <h3>📊 Uploads</h3>
-    <div class="table-wrap">
-      <table id="uploadTable">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Platform</th>
-            <th>Title 1</th>
-            <th>Title 2</th>
-            <th>Title 3</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-
-    <div class="btn-group">
-      <button onclick="downloadCSV()">⬇️ Export CSV</button>
-      <button onclick="logout()" class="logout-btn">Logout</button>
-    </div>
+    <!-- Upload form, chart, and table go here -->
+    <h2>Welcome to the Dashboard</h2>
+    <button onclick="logout()" class="logout-btn">Logout</button>
   </div>
 
-  <!-- 📜 JS -->
   <script type="module" src="script.js"></script>
 </body>
 </html>
