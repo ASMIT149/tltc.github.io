@@ -3,29 +3,35 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🎬 THE LAST TRUMPET CHURCH</title>
+  <title>THE LAST TRUMPET CHURCH</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
+<body class="animated-bg">
+  <!-- 🌟 Strip Light Effect -->
   <div class="strip-light"></div>
+
+  <!-- 🔔 Church Title -->
   <h1 class="main-title glow-text">THE LAST TRUMPET CHURCH</h1>
+
+  <!-- 🕒 Clock -->
   <div id="clock" class="clock-glow"></div>
 
-  <!-- 🔐 Auth Pages -->
-  <div id="authContainer" class="glass-card animate-login">
-    <h2 id="authTitle">Sign In</h2>
-    <input type="email" id="authEmail" placeholder="Email" />
-    <input type="password" id="authPassword" placeholder="Password" />
-    <button onclick="authAction()" id="authButton">Sign In</button>
-    <p id="authError" class="error-text"></p>
+  <!-- 🔐 Auth Card -->
+  <div id="authCard" class="glass-card animate-login">
+    <h2 id="formTitle">Sign In</h2>
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <input type="password" id="confirmPassword" placeholder="Confirm Password" class="hidden" />
+    <button id="submitBtn" onclick="signIn()">Sign In</button>
+    <p id="loginError" class="error-text"></p>
     <p>
-      <span id="toggleAuth" onclick="toggleAuthMode()">Don't have an account? Sign Up</span><br/>
-      <span id="forgotPassword" onclick="resetPassword()">Forgot Password?</span>
+      <span id="toggleForm">Don't have an account? <a href="#" onclick="toggleSignUp(true)">Sign Up</a></span><br>
+      <a href="#" onclick="forgotPassword()">Forgot Password?</a>
     </p>
   </div>
 
-  <!-- 📋 Dashboard Page -->
+  <!-- 📋 App Page -->
   <div id="appPage" class="glass-card hidden animate-dashboard">
     <h2>📅 Upload Log</h2>
     <input type="date" id="date" />
@@ -40,11 +46,15 @@
     <input type="text" id="title3" placeholder="Video Title 3" />
     <button onclick="addUpload()">Submit</button>
 
+    <!-- 📊 Charts -->
     <div class="chart-container">
+      <h4 class="glow-sub">Uploads Per Platform</h4>
       <canvas id="uploadChart"></canvas>
+      <h4 class="glow-sub">Upload Distribution</h4>
       <canvas id="uploadPie"></canvas>
     </div>
 
+    <!-- 📜 Upload Table -->
     <h3>📊 Uploads</h3>
     <div class="table-wrap">
       <table id="uploadTable">
