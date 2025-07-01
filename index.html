@@ -7,44 +7,28 @@
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
-
-  <!-- 🌟 Strip Light -->
+<body class="animated-bg">
   <div class="strip-light"></div>
-
-  <!-- 🔔 Title -->
   <h1 class="main-title glow-text">THE LAST TRUMPET CHURCH</h1>
-
-  <!-- 🕒 Clock -->
   <div id="clock" class="clock-glow"></div>
 
-  <!-- 🔐 LOGIN FORM -->
-  <div id="loginPage" class="glass-card animate-login">
-    <h2>🔐 Sign In</h2>
-    <input type="email" id="loginEmail" placeholder="Email" />
-    <input type="password" id="loginPassword" placeholder="Password" />
-    <button onclick="login()">Login</button>
+  <!-- 🔐 Auth Forms -->
+  <div id="authPage" class="glass-card animate-login">
+    <h2>🔐 Login / Sign Up</h2>
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Password" />
+    <button onclick="login()">Sign In</button>
+    <button onclick="signup()">Sign Up</button>
     <button onclick="forgotPassword()">Forgot Password?</button>
     <p id="loginError" class="error-text"></p>
-    <p>Don't have an account? <a href="#" onclick="showSignup()">Create one</a></p>
   </div>
 
-  <!-- 🆕 SIGNUP FORM -->
-  <div id="signupPage" class="glass-card hidden animate-login">
-    <h2>🆕 Sign Up</h2>
-    <input type="email" id="signupEmail" placeholder="Email" />
-    <input type="password" id="signupPassword" placeholder="Password" />
-    <button onclick="signup()">Create Account</button>
-    <p id="signupError" class="error-text"></p>
-    <p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
-  </div>
-
-  <!-- 📋 DASHBOARD -->
+  <!-- 📋 Dashboard -->
   <div id="appPage" class="glass-card hidden animate-dashboard">
     <h2>📅 Upload Log</h2>
     <input type="date" id="date" />
     <select id="platform">
-      <option value="">Select Platform</option>
+      <option value="" disabled selected>Select Platform</option>
       <option value="YouTube">YouTube</option>
       <option value="Instagram">Instagram</option>
       <option value="Facebook">Facebook</option>
@@ -54,17 +38,11 @@
     <input type="text" id="title3" placeholder="Video Title 3" />
     <button onclick="addUpload()">Submit</button>
 
-    <!-- 📊 Bar Chart -->
     <div class="chart-container">
-      <canvas id="uploadChart"></canvas>
+      <canvas id="uploadChart"></canvas><br />
+      <canvas id="uploadPieChart"></canvas>
     </div>
 
-    <!-- 🥧 Pie Chart -->
-    <div class="chart-container">
-      <canvas id="uploadPie"></canvas>
-    </div>
-
-    <!-- 📜 Table -->
     <h3>📊 Uploads</h3>
     <div class="table-wrap">
       <table id="uploadTable">
@@ -88,19 +66,6 @@
     </div>
   </div>
 
-  <!-- 🧠 Show/hide logic -->
-  <script>
-    function showSignup() {
-      document.getElementById("loginPage").classList.add("hidden");
-      document.getElementById("signupPage").classList.remove("hidden");
-    }
-    function showLogin() {
-      document.getElementById("signupPage").classList.add("hidden");
-      document.getElementById("loginPage").classList.remove("hidden");
-    }
-  </script>
-
-  <!-- 📜 App Logic -->
   <script type="module" src="script.js"></script>
 </body>
 </html>
