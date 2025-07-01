@@ -1,4 +1,4 @@
-// Firebase Imports
+// 🔥 Firebase Config
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
 import {
   getAuth,
@@ -16,8 +16,8 @@ import {
   deleteDoc,
   doc
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+import { Chart } from "https://cdn.jsdelivr.net/npm/chart.js";
 
-// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyCcd1CCTlJRZ2YOhbziRVdiZlvVzUHiYm4",
   authDomain: "video-tracker-7f709.firebaseapp.com",
@@ -27,154 +27,109 @@ const firebaseConfig = {
   appId: "1:6567580876:web:e982351a06897faea45e69"
 };
 
-// Init Services
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Clock
+// 🕒 Clock
 setInterval(() => {
   document.getElementById("clock").textContent = new Date().toLocaleTimeString();
 }, 1000);
 
-// UI Toggles
-const loginPage = document.getElementById("loginPage");
-const appPage = document.getElementById("appPage");
-const toggleBtn = document.getElementById("toggleLogin");
-const authTitle = document.getElementById("authTitle");
-const loginBtn = document.getElementById("loginBtn");
-let isLogin = true;
-
-toggleBtn.onclick = () => {
-  isLogin = !isLogin;
-  authTitle.textContent = isLogin ? "Login" : "Sign Up";
-  loginBtn.textContent = isLogin ? "Login" : "Sign Up";
-  toggleBtn.textContent = isLogin ? "Don't have an account? Sign Up" : "Already have an account? Login";
+// 🔐 Auth
+window.signup = () => {
+  const email = document.getElementById("signupEmail").value;
+  const password = document.getElementById("signupPassword").value;
+  createUserWithEmailAndPassword(auth, email, password)
+    .then(() => alert("✅ User registered! Now Sign In."))
+    .catch(err => alert("❌ " + err.message));
 };
 
-// Auth Functions
-window.login = async function () {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-  const error = document.getElementById("loginError");
-  try {
-    if (isLogin) {
-      await signInWithEmailAndPassword(auth, email, password);
-    } else {
-      await createUserWithEmailAndPassword(auth, email, password);
-    }
-    error.textContent = "";
-  } catch (err) {
-    error.textContent = err.message;
+window.signin = () => {
+  const email = document.getElementById("signinEmail").value;
+  const password = document.getElementById("signinPassword").value;
+  signInWithEmailAndPassword(auth, email, password)
+    .catch(err => alert("❌ " + err.message));
+};
+
+window.resetPassword = () => {
+  const email = prompt("Enter your registered email to reset password:");
+  if (email) {
+    sendPasswordResetEmail(auth, email)
+      .then(() => alert("📧 Password reset link sent!"))
+      .catch(err => alert("❌ " + err.message));
   }
 };
 
-// Forgot Password
-window.forgotPassword = () => {
-  const email = document.getElementById("email").value;
-  if (!email) return alert("Enter email to reset password");
-  sendPasswordResetEmail(auth, email)
-    .then(() => alert("Reset link sent to email"))
-    .catch((err) => alert(err.message));
-};
-
-// Auth State Check
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    loginPage.classList.add("hidden");
-    appPage.classList.remove("hidden");
-    loadUploads();
-  } else {
-    loginPage.classList.remove("hidden");
-    appPage.classList.add("hidden");
-  }
-});
-
-// Logout
 window.logout = () => signOut(auth);
 
-// Add Upload
+onAuthStateChanged(auth, user => {
+  document.getElementById("authPage").style.display = user ? "none" : "block";
+  document.getElementById("appPage").style.display = user ? "block" : "none";
+  if (user) loadUploads();
+});
+
+// 📦 Data Handling
 window.addUpload = async () => {
   const date = document.getElementById("date").value;
   const platform = document.getElementById("platform").value;
   const title1 = document.getElementById("title1").value;
   const title2 = document.getElementById("title2").value;
   const title3 = document.getElementById("title3").value;
-  if (!date || !platform) return alert("Please fill all required fields");
 
-  await addDoc(collection(db, "uploads"), {
-    date,
-    platform,
-    title1,
-    title2,
-    title3
-  });
-  ["title1", "title2", "title3"].forEach(id => document.getElementById(id).value = "");
+  if (!date || !platform) return alert("Please enter all required fields");
+
+  await addDoc(collection(db, "uploads"), { date, platform, title1, title2, title3 });
   loadUploads();
 };
 
-// Load Uploads + Chart
-let chart1, chart2;
-async function loadUploads() {
-  const table = document.querySelector("#uploadTable tbody");
-  table.innerHTML = "";
-  const snapshot = await getDocs(collection(db, "uploads"));
-  const stats = {};
-
-  snapshot.forEach(docSnap => {
-    const d = docSnap.data();
-    stats[d.platform] = (stats[d.platform] || 0) + 1;
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${d.date}</td>
-      <td>${d.platform}</td>
-      <td>${d.title1}</td>
-      <td>${d.title2}</td>
-      <td>${d.title3}</td>
-      <td><button class="delete-btn" onclick="deleteUpload('${docSnap.id}')">🗑️</button></td>
-    `;
-    table.appendChild(row);
-  });
-
-  updateCharts(stats);
-}
-
-// Delete
-window.deleteUpload = async (id) => {
+window.deleteUpload = async id => {
   await deleteDoc(doc(db, "uploads", id));
   loadUploads();
 };
 
-// Export
-window.downloadCSV = async () => {
+let barChart, pieChart;
+
+async function loadUploads() {
+  const table = document.querySelector("#uploadTable tbody");
+  table.innerHTML = "";
+  const stats = {};
+
   const snapshot = await getDocs(collection(db, "uploads"));
-  let csv = "Date,Platform,Title 1,Title 2,Title 3\n";
   snapshot.forEach(docSnap => {
-    const d = docSnap.data();
-    csv += `${d.date},${d.platform},"${d.title1}","${d.title2}","${d.title3}"\n`;
+    const e = docSnap.data();
+    stats[e.platform] = (stats[e.platform] || 0) + 1;
+    table.innerHTML += `
+      <tr>
+        <td>${e.date}</td>
+        <td>${e.platform}</td>
+        <td>${e.title1}</td>
+        <td>${e.title2}</td>
+        <td>${e.title3}</td>
+        <td><button class="delete-btn" onclick="deleteUpload('${docSnap.id}')">🗑️</button></td>
+      </tr>`;
   });
-  const blob = new Blob([csv], { type: "text/csv" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "uploads.csv";
-  link.click();
-};
 
-// Update Chart
-function updateCharts(data) {
-  const ctx1 = document.getElementById("uploadChart").getContext("2d");
-  const ctx2 = document.getElementById("uploadPie").getContext("2d");
-  if (chart1) chart1.destroy();
-  if (chart2) chart2.destroy();
+  renderCharts(stats);
+}
 
-  chart1 = new Chart(ctx1, {
+function renderCharts(data) {
+  const barCtx = document.getElementById("barChart").getContext("2d");
+  const pieCtx = document.getElementById("pieChart").getContext("2d");
+  const labels = Object.keys(data);
+  const values = Object.values(data);
+
+  if (barChart) barChart.destroy();
+  if (pieChart) pieChart.destroy();
+
+  barChart = new Chart(barCtx, {
     type: "bar",
     data: {
-      labels: Object.keys(data),
+      labels,
       datasets: [{
-        label: "Uploads",
-        data: Object.values(data),
-        backgroundColor: ["#36a2eb", "#ff6384", "#4bc0c0", "#ffce56"]
+        label: "Uploads Per Platform",
+        data: values,
+        backgroundColor: ["#00f2fe", "#ff6b6b", "#ffc107"]
       }]
     },
     options: {
@@ -182,7 +137,7 @@ function updateCharts(data) {
         title: {
           display: true,
           text: "Uploads Per Platform",
-          color: "#0ff"
+          color: "#00ffff"
         },
         legend: { display: false }
       },
@@ -193,13 +148,14 @@ function updateCharts(data) {
     }
   });
 
-  chart2 = new Chart(ctx2, {
+  pieChart = new Chart(pieCtx, {
     type: "pie",
     data: {
-      labels: Object.keys(data),
+      labels,
       datasets: [{
-        data: Object.values(data),
-        backgroundColor: ["#36a2eb", "#ff6384", "#4bc0c0", "#ffce56"]
+        label: "Upload Distribution",
+        data: values,
+        backgroundColor: ["#00f2fe", "#ff6b6b", "#ffc107"]
       }]
     },
     options: {
@@ -207,7 +163,7 @@ function updateCharts(data) {
         title: {
           display: true,
           text: "Upload Distribution",
-          color: "#0ff"
+          color: "#00ffff"
         },
         legend: {
           labels: { color: "#fff" }
