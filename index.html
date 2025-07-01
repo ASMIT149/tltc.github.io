@@ -2,35 +2,32 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🎬 THE LAST TRUMPET CHURCH</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="animated-bg">
-  <!-- ✨ Top Bar Strip -->
+<body>
   <div class="strip-light"></div>
-
-  <!-- 📎 Title -->
   <h1 class="main-title glow-text">THE LAST TRUMPET CHURCH</h1>
-
-  <!-- 🕒 Clock -->
   <div id="clock" class="clock-glow"></div>
 
-  <!-- 🔒 Auth Pages -->
-  <div id="authCard" class="glass-card animate-login">
-    <h2 id="formTitle">Sign In</h2>
-    <input type="email" id="email" placeholder="Email" />
-    <input type="password" id="password" placeholder="Password" />
-    <button id="authButton" onclick="signIn()">Sign In</button>
-    <p class="link-text">Don't have an account? <span onclick="toggleForm(true)">Sign Up</span></p>
-    <p class="link-text">Forgot password? <span onclick="resetPassword()">Reset</span></p>
+  <!-- 🔐 Auth Pages -->
+  <div id="authContainer" class="glass-card animate-login">
+    <h2 id="authTitle">Sign In</h2>
+    <input type="email" id="authEmail" placeholder="Email" />
+    <input type="password" id="authPassword" placeholder="Password" />
+    <button onclick="authAction()" id="authButton">Sign In</button>
     <p id="authError" class="error-text"></p>
+    <p>
+      <span id="toggleAuth" onclick="toggleAuthMode()">Don't have an account? Sign Up</span><br/>
+      <span id="forgotPassword" onclick="resetPassword()">Forgot Password?</span>
+    </p>
   </div>
 
-  <!-- 📋 Dashboard -->
+  <!-- 📋 Dashboard Page -->
   <div id="appPage" class="glass-card hidden animate-dashboard">
-    <h2>Upload Log</h2>
+    <h2>📅 Upload Log</h2>
     <input type="date" id="date" />
     <select id="platform">
       <option value="">Select Platform</option>
@@ -43,13 +40,12 @@
     <input type="text" id="title3" placeholder="Video Title 3" />
     <button onclick="addUpload()">Submit</button>
 
-    <!-- 📊 Charts -->
     <div class="chart-container">
       <canvas id="uploadChart"></canvas>
-      <canvas id="pieChart" style="margin-top:30px;"></canvas>
+      <canvas id="uploadPie"></canvas>
     </div>
 
-    <!-- 📄 Table -->
+    <h3>📊 Uploads</h3>
     <div class="table-wrap">
       <table id="uploadTable">
         <thead>
@@ -66,7 +62,6 @@
       </table>
     </div>
 
-    <!-- 📥 Buttons -->
     <div class="btn-group">
       <button onclick="downloadCSV()">⬇️ Export CSV</button>
       <button onclick="logout()" class="logout-btn">Logout</button>
