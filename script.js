@@ -1,8 +1,9 @@
-// Firebase Config + Setup
+""// Firebase Config + Setup
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
 import {
   getAuth,
   signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
@@ -47,28 +48,56 @@ window.login = function () {
     .then(() => {
       error.textContent = "";
     })
-    .catch((err) => {
+    .catch(() => {
       error.textContent = "❌ Invalid email or password.";
     });
 };
 
-// 👤 Auth State Check
+// 📝 Register
+window.signup = function () {
+  const email = document.getElementById("regEmail").value;
+  const password = document.getElementById("regPassword").value;
+  const error = document.getElementById("signupError");
+
+  createUserWithEmailAndPassword(auth, email, password)
+    .then(() => {
+      error.textContent = "✅ Account created! Please login.";
+    })
+    .catch(err => {
+      error.textContent = `❌ ${err.message}`;
+    });
+};
+
+// 👤 Auth Check
 onAuthStateChanged(auth, user => {
   if (user) {
     document.getElementById("loginPage").classList.add("hidden");
+    document.getElementById("signupPage").classList.add("hidden");
     document.getElementById("appPage").classList.remove("hidden");
-    document.getElementById("appPage").classList.add("animate-dashboard");
     loadUploads();
   } else {
-    document.getElementById("appPage").classList.add("hidden");
     document.getElementById("loginPage").classList.remove("hidden");
-    document.getElementById("loginPage").classList.add("animate-login");
+    document.getElementById("signupPage").classList.add("hidden");
+    document.getElementById("appPage").classList.add("hidden");
   }
 });
 
 // 🚪 Logout
 window.logout = function () {
   signOut(auth);
+};
+
+// 🔁 Toggle Pages
+window.toggleForm = function () {
+  const loginPage = document.getElementById("loginPage");
+  const signupPage = document.getElementById("signupPage");
+  if (signupPage.classList.contains("hidden")) {
+    signupPage.classList.remove("hidden");
+    loginPage.classList.add("hidden");
+  } else {
+    signupPage.classList.add("hidden");
+    loginPage.classList.remove("hidden");
+  }
 };
 
 // ➕ Add Upload
@@ -114,7 +143,7 @@ async function loadUploads() {
     stats[entry.platform] = (stats[entry.platform] || 0) + 1;
   });
 
-  updateChart(stats);
+  updateCharts(stats);
 }
 
 // 🗑️ Delete Upload
@@ -139,38 +168,58 @@ window.downloadCSV = async function () {
   link.click();
 };
 
-// 📊 Chart
-let chart;
-function updateChart(data) {
-  const ctx = document.getElementById("uploadChart").getContext("2d");
-  if (chart) chart.destroy();
-  chart = new Chart(ctx, {
+// 📊 Charts
+let barChart, pieChart;
+function updateCharts(data) {
+  const barCtx = document.getElementById("uploadChart").getContext("2d");
+  const pieCtx = document.getElementById("uploadPie").getContext("2d");
+
+  if (barChart) barChart.destroy();
+  if (pieChart) pieChart.destroy();
+
+  const labels = Object.keys(data);
+  const values = Object.values(data);
+  const colors = ["#36a2eb", "#ff6384", "#cc65fe", "#ffce56"];
+
+  barChart = new Chart(barCtx, {
     type: "bar",
     data: {
-      labels: Object.keys(data),
+      labels,
       datasets: [{
-        label: "Uploads per Platform",
-        data: Object.values(data),
-        backgroundColor: ["#ff6384", "#36a2eb", "#cc65fe"]
+        label: "Uploads",
+        data: values,
+        backgroundColor: colors
       }]
     },
     options: {
-      responsive: true,
-      animation: {
-        duration: 1200
-      },
       plugins: {
         legend: { display: false },
-        title: { display: true, text: "Platform Statistics", color: "#0ff" }
+        title: { display: true, text: "Uploads Per Platform" }
       },
+      responsive: true,
       scales: {
-        x: {
-          ticks: { color: "#fff" }
-        },
-        y: {
-          ticks: { color: "#fff" }
-        }
+        x: { ticks: { color: "#fff" } },
+        y: { ticks: { color: "#fff" } }
       }
+    }
+  });
+
+  pieChart = new Chart(pieCtx, {
+    type: "pie",
+    data: {
+      labels,
+      datasets: [{
+        label: "Uploads",
+        data: values,
+        backgroundColor: colors
+      }]
+    },
+    options: {
+      plugins: {
+        title: { display: true, text: "Upload Share" },
+        legend: { labels: { color: "#fff" } }
+      },
+      responsive: true
     }
   });
 }
