@@ -1,4 +1,4 @@
-// 🔥 Firebase Config
+// Firebase Setup
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
 import {
   getAuth,
@@ -16,7 +16,6 @@ import {
   deleteDoc,
   doc
 } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-import { Chart } from "https://cdn.jsdelivr.net/npm/chart.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCcd1CCTlJRZ2YOhbziRVdiZlvVzUHiYm4",
@@ -24,120 +23,177 @@ const firebaseConfig = {
   projectId: "video-tracker-7f709",
   storageBucket: "video-tracker-7f709.appspot.com",
   messagingSenderId: "6567580876",
-  appId: "1:6567580876:web:e982351a06897faea45e69"
+  appId: "1:6567580876:web:e982351a06897faea45e69",
+  measurementId: "G-554K9DJVCJ"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// 🕒 Clock
-setInterval(() => {
+// Clock
+function updateClock() {
   document.getElementById("clock").textContent = new Date().toLocaleTimeString();
-}, 1000);
+}
+setInterval(updateClock, 1000);
+updateClock();
 
-// 🔐 Auth
-window.signup = () => {
-  const email = document.getElementById("signupEmail").value;
-  const password = document.getElementById("signupPassword").value;
-  createUserWithEmailAndPassword(auth, email, password)
-    .then(() => alert("✅ User registered! Now Sign In."))
-    .catch(err => alert("❌ " + err.message));
-};
+// Auth
+let isLogin = true;
 
-window.signin = () => {
-  const email = document.getElementById("signinEmail").value;
-  const password = document.getElementById("signinPassword").value;
-  signInWithEmailAndPassword(auth, email, password)
-    .catch(err => alert("❌ " + err.message));
-};
-
-window.resetPassword = () => {
-  const email = prompt("Enter your registered email to reset password:");
-  if (email) {
-    sendPasswordResetEmail(auth, email)
-      .then(() => alert("📧 Password reset link sent!"))
-      .catch(err => alert("❌ " + err.message));
+window.toggleAuthMode = function () {
+  const title = document.getElementById("formTitle");
+  const btn = document.getElementById("authButton");
+  const toggleText = document.getElementById("toggleText");
+  isLogin = !isLogin;
+  if (isLogin) {
+    title.innerText = "Sign In";
+    btn.innerText = "Login";
+    toggleText.innerText = "Sign Up";
+  } else {
+    title.innerText = "Sign Up";
+    btn.innerText = "Register";
+    toggleText.innerText = "Sign In";
   }
 };
 
-window.logout = () => signOut(auth);
+window.login = function () {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const error = document.getElementById("loginError");
+
+  if (!isLogin) {
+    createUserWithEmailAndPassword(auth, email, password)
+      .then(() => error.textContent = "")
+      .catch(err => error.textContent = err.message);
+  } else {
+    signInWithEmailAndPassword(auth, email, password)
+      .then(() => error.textContent = "")
+      .catch(err => error.textContent = "❌ Invalid email or password.");
+  }
+};
+
+window.showReset = function () {
+  const email = document.getElementById("email").value;
+  const error = document.getElementById("loginError");
+  if (!email) return alert("Please enter your email to reset password");
+
+  sendPasswordResetEmail(auth, email)
+    .then(() => alert("Password reset email sent!"))
+    .catch((err) => error.textContent = err.message);
+};
 
 onAuthStateChanged(auth, user => {
-  document.getElementById("authPage").style.display = user ? "none" : "block";
-  document.getElementById("appPage").style.display = user ? "block" : "none";
-  if (user) loadUploads();
+  if (user) {
+    document.getElementById("authPage").classList.add("hidden");
+    document.getElementById("appPage").classList.remove("hidden");
+    loadUploads();
+  } else {
+    document.getElementById("appPage").classList.add("hidden");
+    document.getElementById("authPage").classList.remove("hidden");
+  }
 });
 
-// 📦 Data Handling
-window.addUpload = async () => {
+window.logout = function () {
+  signOut(auth);
+};
+
+window.addUpload = async function () {
   const date = document.getElementById("date").value;
   const platform = document.getElementById("platform").value;
   const title1 = document.getElementById("title1").value;
   const title2 = document.getElementById("title2").value;
   const title3 = document.getElementById("title3").value;
 
-  if (!date || !platform) return alert("Please enter all required fields");
+  if (!date || !platform) return alert("Please fill all required fields");
 
-  await addDoc(collection(db, "uploads"), { date, platform, title1, title2, title3 });
+  await addDoc(collection(db, "uploads"), {
+    date, platform, title1, title2, title3
+  });
+
+  document.getElementById("title1").value = "";
+  document.getElementById("title2").value = "";
+  document.getElementById("title3").value = "";
+
   loadUploads();
 };
 
-window.deleteUpload = async id => {
+window.deleteUpload = async function (id) {
   await deleteDoc(doc(db, "uploads", id));
   loadUploads();
 };
 
-let barChart, pieChart;
-
 async function loadUploads() {
   const table = document.querySelector("#uploadTable tbody");
   table.innerHTML = "";
-  const stats = {};
-
   const snapshot = await getDocs(collection(db, "uploads"));
+  const stats = {};
+  let count = 0;
+
   snapshot.forEach(docSnap => {
-    const e = docSnap.data();
-    stats[e.platform] = (stats[e.platform] || 0) + 1;
-    table.innerHTML += `
-      <tr>
-        <td>${e.date}</td>
-        <td>${e.platform}</td>
-        <td>${e.title1}</td>
-        <td>${e.title2}</td>
-        <td>${e.title3}</td>
-        <td><button class="delete-btn" onclick="deleteUpload('${docSnap.id}')">🗑️</button></td>
-      </tr>`;
+    const entry = docSnap.data();
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${entry.date}</td>
+      <td>${entry.platform}</td>
+      <td>${entry.title1}</td>
+      <td>${entry.title2}</td>
+      <td>${entry.title3}</td>
+      <td><button class="delete-btn" onclick="deleteUpload('${docSnap.id}')">🗑️</button></td>
+    `;
+    table.appendChild(tr);
+    stats[entry.platform] = (stats[entry.platform] || 0) + 1;
+    count++;
   });
 
-  renderCharts(stats);
+  document.getElementById("totalUploads").textContent = count;
+  updateChart(stats);
+  updatePie(stats);
 }
 
-function renderCharts(data) {
-  const barCtx = document.getElementById("barChart").getContext("2d");
-  const pieCtx = document.getElementById("pieChart").getContext("2d");
-  const labels = Object.keys(data);
-  const values = Object.values(data);
+window.downloadCSV = async function () {
+  const snapshot = await getDocs(collection(db, "uploads"));
+  let csv = "Date,Platform,Title 1,Title 2,Title 3\n";
+  snapshot.forEach(docSnap => {
+    const e = docSnap.data();
+    csv += `${e.date},${e.platform},"${e.title1}","${e.title2}","${e.title3}"\n`;
+  });
 
-  if (barChart) barChart.destroy();
-  if (pieChart) pieChart.destroy();
+  const blob = new Blob([csv], { type: "text/csv" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "uploads.csv";
+  link.click();
+};
 
-  barChart = new Chart(barCtx, {
+window.downloadPNG = function () {
+  const canvas = document.getElementById("uploadChart");
+  const link = document.createElement("a");
+  link.download = "chart.png";
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+};
+
+let chart;
+function updateChart(data) {
+  const ctx = document.getElementById("uploadChart").getContext("2d");
+  if (chart) chart.destroy();
+  chart = new Chart(ctx, {
     type: "bar",
     data: {
-      labels,
+      labels: Object.keys(data),
       datasets: [{
-        label: "Uploads Per Platform",
-        data: values,
-        backgroundColor: ["#00f2fe", "#ff6b6b", "#ffc107"]
+        label: "Uploads per Platform",
+        data: Object.values(data),
+        backgroundColor: ["#ff6384", "#36a2eb", "#cc65fe"]
       }]
     },
     options: {
       plugins: {
         title: {
           display: true,
-          text: "Uploads Per Platform",
-          color: "#00ffff"
+          text: "Uploads by Platform",
+          color: "#0ff"
         },
         legend: { display: false }
       },
@@ -147,15 +203,19 @@ function renderCharts(data) {
       }
     }
   });
+}
 
-  pieChart = new Chart(pieCtx, {
+let pie;
+function updatePie(data) {
+  const ctx = document.getElementById("uploadPie").getContext("2d");
+  if (pie) pie.destroy();
+  pie = new Chart(ctx, {
     type: "pie",
     data: {
-      labels,
+      labels: Object.keys(data),
       datasets: [{
-        label: "Upload Distribution",
-        data: values,
-        backgroundColor: ["#00f2fe", "#ff6b6b", "#ffc107"]
+        data: Object.values(data),
+        backgroundColor: ["#ffce56", "#36a2eb", "#ff6384"]
       }]
     },
     options: {
@@ -163,10 +223,12 @@ function renderCharts(data) {
         title: {
           display: true,
           text: "Upload Distribution",
-          color: "#00ffff"
+          color: "#0ff"
         },
         legend: {
-          labels: { color: "#fff" }
+          labels: {
+            color: "#fff"
+          }
         }
       }
     }
