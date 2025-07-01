@@ -3,32 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🎬 THE LAST TRUMPET CHURCH</title>
+  <title>THE LAST TRUMPET CHURCH</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="animated-bg">
+<body>
 
-  <!-- 🌟 Strip Light Effect -->
+  <!-- 🔷 Strip Light Animation -->
   <div class="strip-light"></div>
-
-  <!-- 🔔 Church Title -->
   <h1 class="main-title glow-text">THE LAST TRUMPET CHURCH</h1>
-
-  <!-- 🕒 Clock -->
   <div id="clock" class="clock-glow"></div>
 
-  <!-- 🔐 Auth Panel -->
-  <div id="authPage" class="glass-card animate-login">
-    <h2>🔐 Sign In / Sign Up</h2>
+  <!-- 🔐 Auth Section -->
+  <div id="authSection" class="glass-card animate-login">
+    <h2>Sign In / Sign Up</h2>
     <input type="email" id="email" placeholder="Email" />
     <input type="password" id="password" placeholder="Password" />
-    <button onclick="login()">🔓 Sign In</button>
-    <button onclick="signup()">📝 Sign Up</button>
-    <p id="loginError" class="error-text"></p>
+    <button onclick="login()">Login</button>
+    <button onclick="signup()">Sign Up</button>
+    <p id="authError" class="error-text"></p>
   </div>
 
-  <!-- 📋 Dashboard Page -->
+  <!-- 📋 Main Dashboard -->
   <div id="appPage" class="glass-card hidden animate-dashboard">
     <h2>📅 Upload Log</h2>
     <input type="date" id="date" />
@@ -43,16 +39,6 @@
     <input type="text" id="title3" placeholder="Video Title 3" />
     <button onclick="addUpload()">Submit</button>
 
-    <!-- 📊 Chart Section -->
-    <div class="chart-container">
-      <canvas id="uploadChart"></canvas>
-    </div>
-
-    <div class="chart-container">
-      <canvas id="pieChart"></canvas>
-    </div>
-
-    <!-- 📜 Upload Table -->
     <h3>📊 Uploads</h3>
     <div class="table-wrap">
       <table id="uploadTable">
@@ -70,13 +56,18 @@
       </table>
     </div>
 
+    <div class="chart-container">
+      <canvas id="barChart"></canvas>
+      <canvas id="pieChart"></canvas>
+    </div>
+
     <div class="btn-group">
       <button onclick="downloadCSV()">⬇️ Export CSV</button>
       <button onclick="logout()" class="logout-btn">Logout</button>
     </div>
   </div>
 
-  <!-- 📜 Script -->
+  <!-- 🔧 Script -->
   <script type="module" src="script.js"></script>
 </body>
 </html>
