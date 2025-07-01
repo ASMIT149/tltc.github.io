@@ -18,16 +18,17 @@
   <!-- 🕒 Clock -->
   <div id="clock" class="clock-glow"></div>
 
-  <!-- 🔐 Login Page -->
-  <div id="loginPage" class="glass-card animate-login">
-    <h2>🔐 Login</h2>
+  <!-- 🔐 Auth Panel -->
+  <div id="authPage" class="glass-card animate-login">
+    <h2>🔐 Sign In / Sign Up</h2>
     <input type="email" id="email" placeholder="Email" />
     <input type="password" id="password" placeholder="Password" />
-    <button onclick="login()">Login</button>
+    <button onclick="login()">🔓 Sign In</button>
+    <button onclick="signup()">📝 Sign Up</button>
     <p id="loginError" class="error-text"></p>
   </div>
 
-  <!-- 📋 App Page -->
+  <!-- 📋 Dashboard Page -->
   <div id="appPage" class="glass-card hidden animate-dashboard">
     <h2>📅 Upload Log</h2>
     <input type="date" id="date" />
@@ -42,9 +43,13 @@
     <input type="text" id="title3" placeholder="Video Title 3" />
     <button onclick="addUpload()">Submit</button>
 
-    <!-- 📊 Chart -->
+    <!-- 📊 Chart Section -->
     <div class="chart-container">
       <canvas id="uploadChart"></canvas>
+    </div>
+
+    <div class="chart-container">
+      <canvas id="pieChart"></canvas>
     </div>
 
     <!-- 📜 Upload Table -->
