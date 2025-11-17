@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Video Tracker</title>
 
   <!-- Chart.js -->
@@ -15,11 +15,11 @@
 
   <!-- LOGIN CARD (shown initially) -->
   <main id="loginView" class="center-screen">
-    <div class="auth-card">
+    <div class="auth-card" role="region" aria-label="Login">
       <h1 class="brand">Video Tracker</h1>
       <p class="muted">Sign in to continue</p>
 
-      <input id="email" type="email" placeholder="Email" autocomplete="username" />
+      <input id="email" type="email" placeholder="Email" autocomplete="username" inputmode="email" />
       <input id="password" type="password" placeholder="Password" autocomplete="current-password" />
 
       <div class="row" style="margin-top:8px;">
@@ -28,14 +28,14 @@
       </div>
 
       <p id="authMessage" class="error-text" role="alert" aria-live="polite"></p>
-      <p class="muted small">Tip: Add your site domain under Firebase Auth → Authorized domains if you use hosted auth features.</p>
+      <p class="muted small">Tip: Use valid email and password. If you see "Invalid credentials" — check email; "Wrong password" — check password.</p>
     </div>
   </main>
 
   <!-- APP (hidden until authenticated) -->
   <div id="appView" class="hidden">
     <div class="app-shell">
-      <aside class="sidebar">
+      <aside class="sidebar" id="sidebar">
         <div class="logo">VT</div>
         <nav>
           <button class="navlink" onclick="showSection('dashboard')">Dashboard</button>
@@ -104,7 +104,7 @@
               <input id="u_title1" placeholder="Title 1 (required)" />
               <input id="u_title2" placeholder="Title 2 (optional)" />
               <input id="u_title3" placeholder="Title 3 (optional)" />
-              <div style="display:flex;gap:10px">
+              <div style="display:flex;gap:10px;flex-wrap:wrap">
                 <button class="btn primary" onclick="addUpload()">Save</button>
                 <button class="btn ghost" onclick="loadUploads()">Refresh</button>
               </div>
@@ -129,9 +129,9 @@
             <p class="muted">Message will open your email client addressed to <strong>ashkamble149@gmail.com</strong></p>
             <form id="contactForm" onsubmit="sendContact(event)">
               <input id="c_name" placeholder="Your name" value="Asmit Kamble" />
-              <input id="c_email" type="email" placeholder="Your email" />
+              <input id="c_email" type="email" placeholder="Your email" inputmode="email" />
               <textarea id="c_message" placeholder="Your message"></textarea>
-              <div style="display:flex;gap:10px">
+              <div style="display:flex;gap:10px;flex-wrap:wrap">
                 <button class="btn primary" type="submit">Send</button>
                 <button class="btn ghost" type="button" onclick="resetContact()">Reset</button>
               </div>
