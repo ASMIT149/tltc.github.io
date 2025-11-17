@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Video Tracker</title>
 
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <!-- Firebase compat SDKs (no module hassles) -->
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore-compat.js"></script>
@@ -41,8 +38,9 @@
 
   <!-- APP VIEW -->
   <div id="appView" class="hidden" aria-hidden="true">
-    <!-- MOBILE TOPBAR (visible on small screens) -->
-    <div class="mobile-topbar hidden-mobile" id="mobileTopbar" aria-hidden="true">
+
+    <!-- MOBILE TOPBAR (visible only via CSS on small screens) -->
+    <div class="mobile-topbar" id="mobileTopbar" aria-hidden="true">
       <div class="mobile-vt">
         <div class="mobile-avatar" id="mobileAvatarLetter">A</div>
         <div class="mobile-meta">
