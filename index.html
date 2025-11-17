@@ -41,6 +41,20 @@
 
   <!-- APP VIEW -->
   <div id="appView" class="hidden" aria-hidden="true">
+    <!-- MOBILE TOPBAR (visible on small screens) -->
+    <div class="mobile-topbar hidden-mobile" id="mobileTopbar" aria-hidden="true">
+      <div class="mobile-vt">
+        <div class="mobile-avatar" id="mobileAvatarLetter">A</div>
+        <div class="mobile-meta">
+          <div id="mobileProfileName" class="mobile-name">Asmit Kamble</div>
+          <div id="mobileProfileEmail" class="mobile-email">ashkamble149@gmail.com</div>
+        </div>
+      </div>
+      <div class="mobile-logout">
+        <button class="btn ghost small" onclick="signOutUser()">Logout</button>
+      </div>
+    </div>
+
     <div class="app-shell">
       <aside class="sidebar" id="sidebar">
         <div class="logo">VT</div>
