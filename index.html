@@ -3,135 +3,146 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Video Tracker — iOS Liquid</title>
+  <title>Video Tracker — Dashboard</title>
 
-  <!-- Chart.js CDN -->
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- Link CSS -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <!-- Top strip glow -->
   <div class="strip-light"></div>
 
-  <div class="hero">
-    <div class="hero-left">
-      <div class="title-big">Video<br/>Tracker</div>
-      <div class="subtitle">iOS Liquid Glass — Video Tracking Dashboard</div>
+  <!-- App wrapper -->
+  <div id="app" class="app">
+
+    <!-- LOGIN / AUTH card -->
+    <div id="page-login" class="page center">
+      <div class="auth-card glass-card">
+        <h1 class="brand">Video Tracker</h1>
+        <p class="muted">Sign in to manage uploads and analytics</p>
+
+        <input id="email" type="email" placeholder="Email" />
+        <input id="password" type="password" placeholder="Password" />
+        <div class="row">
+          <button id="authButton" class="btn primary" onclick="login()">Login</button>
+          <button id="switchBtn" class="btn ghost" onclick="toggleAuthMode()">Create</button>
+        </div>
+        <p id="loginError" class="error-text"></p>
+        <p class="muted small">Or continue as guest (read-only)</p>
+        <div class="row">
+          <button class="btn secondary" onclick="guestView()">Continue as Guest</button>
+        </div>
+      </div>
     </div>
 
-    <div style="display:flex;flex-direction:column;gap:12px;align-items:flex-end">
-      <div id="clockDisplay" class="widget" style="padding:10px 20px;border-radius:20px;min-width:160px;text-align:center">--:--:--</div>
-      <div id="userBadge" class="widget" style="padding:10px 14px;border-radius:20px;min-width:160px;text-align:center;display:none">
-        <span id="userEmail"></span>
-        <div style="margin-top:8px"><button id="logoutBtn" class="pill-btn">Logout</button></div>
-      </div>
+    <!-- APP SHELL -->
+    <div id="page-app" class="page hidden">
+      <aside class="sidebar glass-card float-left">
+        <div class="logo">VT</div>
+        <nav>
+          <a href="#dashboard" class="navlink" data-route>Dashboard</a>
+          <a href="#uploads" class="navlink" data-route>Uploads</a>
+          <a href="#contact" class="navlink" data-route>Contact</a>
+        </nav>
+
+        <div class="profile glass-card small">
+          <div class="avatar">A</div>
+          <div class="meta">
+            <div id="profileName">Asmit Kamble</div>
+            <div id="profileEmail" class="muted small">ashkamble149@gmail.com</div>
+          </div>
+          <button class="btn tiny logout-btn" onclick="logout()">Logout</button>
+        </div>
+
+        <div class="copyright muted small">© Video Tracker</div>
+      </aside>
+
+      <main class="main">
+        <!-- ROUTED VIEWS -->
+        <section id="view-dashboard" class="view">
+          <header class="main-head glass-card">
+            <h2>Overview</h2>
+            <div id="clock" class="clock muted"></div>
+          </header>
+
+          <div class="grid">
+            <div class="card stat glass-card">
+              <div class="stat-title">Total Uploads</div>
+              <div id="totalUploadsBig" class="stat-value">0</div>
+            </div>
+            <div class="card stat glass-card">
+              <div class="stat-title">Platforms</div>
+              <div class="stat-value">YouTube · Instagram · Facebook</div>
+            </div>
+            <div class="card stat glass-card">
+              <div class="stat-title">Top Video</div>
+              <div class="stat-value" id="topVideo">—</div>
+            </div>
+
+            <div class="card large glass-card">
+              <div class="card-head">Uploads Over Time</div>
+              <canvas id="lineChart"></canvas>
+            </div>
+
+            <div class="card medium glass-card">
+              <div class="card-head">Platform Distribution</div>
+              <canvas id="pieChart"></canvas>
+            </div>
+
+            <div class="card table-card glass-card">
+              <div class="card-head">Latest Uploads</div>
+              <div class="table-wrap">
+                <table id="uploadTable">
+                  <thead><tr><th>Date</th><th>Platform</th><th>Title</th><th>Action</th></tr></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="view-uploads" class="view hidden">
+          <div class="panel glass-card">
+            <h3>Add Upload</h3>
+            <div class="row wrap">
+              <input type="date" id="u_date" />
+              <select id="u_platform"><option value="">Platform</option><option>Youtube</option><option>Instagram</option><option>Facebook</option></select>
+              <input id="u_title" placeholder="Video title" />
+              <button class="btn primary" onclick="addUpload()">Save</button>
+            </div>
+          </div>
+
+          <div class="panel glass-card">
+            <h3>Your Uploads</h3>
+            <div class="table-wrap">
+              <table id="uploadListTbl"><thead><tr><th>Date</th><th>Platform</th><th>Title</th><th>Action</th></tr></thead><tbody></tbody></table>
+            </div>
+          </div>
+        </section>
+
+        <section id="view-contact" class="view hidden">
+          <div class="panel glass-card">
+            <h3>Contact Us</h3>
+            <p class="muted">For support email:</p>
+            <p><strong>ashkamble149@gmail.com</strong></p>
+
+            <form id="contactForm" onsubmit="sendContact(event)">
+              <input id="c_name" placeholder="Your name" value="Asmit Kamble" />
+              <input id="c_email" type="email" placeholder="Your email" value="ashkamble149@gmail.com" />
+              <textarea id="c_message" placeholder="Message"></textarea>
+              <div class="row">
+                <button class="btn primary" type="submit">Send</button>
+                <button class="btn ghost" type="button" onclick="resetContact()">Reset</button>
+              </div>
+            </form>
+          </div>
+        </section>
+      </main>
     </div>
   </div>
 
-  <!-- Auth Card -->
-  <div id="authPage" class="glass-card animate-login widget" style="max-width:420px;margin:18px auto;">
-    <h2 id="formTitle">Sign In</h2>
-    <input type="email" id="email" placeholder="Email" autocomplete="username" />
-    <input type="password" id="password" placeholder="Password" autocomplete="current-password" />
-    <p id="forgotLink" class="auth-link" onclick="showReset()">Forgot password?</p>
-    <button id="authButton" class="pill-btn" onclick="login()">Login</button>
-    <p class="auth-link" onclick="toggleAuthMode()">Don't have an account? <span id="toggleText">Sign Up</span></p>
-    <p id="loginError" class="error-text"></p>
-  </div>
-
-  <!-- Main Layout -->
-  <div class="layout" style="align-items:flex-start;justify-content:center;max-width:1200px;margin:0 auto;">
-    <!-- Left music card / decorative -->
-    <div class="music-card widget float-1" style="min-width:260px;">
-      <div style="display:flex;gap:12px;align-items:center">
-        <div class="music-art"></div>
-        <div>
-          <div class="music-title">Now Playing</div>
-          <div class="music-artist">—</div>
-        </div>
-      </div>
-      <div class="music-controls">
-        <div class="circle-btn">⏮</div>
-        <div class="circle-btn">▶</div>
-        <div class="circle-btn">⏭</div>
-      </div>
-    </div>
-
-    <!-- Right control center + app panel -->
-    <div style="flex:1;display:flex;flex-direction:column;gap:12px">
-      <div class="control-center widget float-2">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <div style="font-weight:700;font-size:16px">Control Center</div>
-          <div style="opacity:0.9">iOS Liquid</div>
-        </div>
-
-        <div style="display:flex;flex-wrap:wrap;margin-top:12px">
-          <div class="large-circle">📶</div>
-          <div class="large-circle">📡</div>
-          <div class="small-circle">✈️</div>
-          <div class="small-circle">🔵</div>
-          <div class="small-circle">🔒</div>
-          <div class="small-circle">🌐</div>
-        </div>
-
-        <div class="quick-actions" style="margin-top:14px">
-          <div class="widget" style="display:flex;gap:12px;align-items:center;padding:10px 14px;">
-            <div style="font-weight:700">Brightness</div>
-            <input id="bright" type="range" min="0" max="100" value="60" style="margin-left:10px;flex:1" />
-          </div>
-          <div class="widget" style="padding:8px 12px;align-items:center;display:flex">
-            <div style="margin-right:8px">Uploads</div>
-            <button class="pill-btn" onclick="toggleAppPanel()">Open</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- App Panel: Uploads, charts, table -->
-      <div id="appPanel" class="widget" style="display:none">
-        <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
-          <input type="date" id="date" style="width:170px" />
-          <select id="platform" style="width:150px">
-            <option value="">Platform</option>
-            <option value="YouTube">YouTube</option>
-            <option value="Instagram">Instagram</option>
-            <option value="Facebook">Facebook</option>
-          </select>
-          <input id="title1" placeholder="Title 1" style="flex:1;min-width:160px" />
-          <input id="title2" placeholder="Title 2 (optional)" style="flex:1;min-width:160px" />
-          <input id="title3" placeholder="Title 3 (optional)" style="flex:1;min-width:160px" />
-          <button class="pill-btn" onclick="addUpload()">Add</button>
-        </div>
-
-        <div class="charts" style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap">
-          <div style="flex:1;min-width:260px;">
-            <canvas id="uploadChart" width="520" height="220"></canvas>
-          </div>
-          <div style="width:260px;">
-            <canvas id="uploadPie" width="260" height="220"></canvas>
-          </div>
-        </div>
-
-        <div style="display:flex;gap:8px;margin-top:12px">
-          <button class="pill-btn" onclick="downloadCSV()">⬇️ Export CSV</button>
-          <button class="pill-btn" onclick="downloadPNG()">📥 Export Chart PNG</button>
-        </div>
-
-        <h3 style="margin-top:12px">Uploads (<span id="totalUploads">0</span>)</h3>
-        <div class="table-wrap">
-          <table id="uploadTable">
-            <thead>
-              <tr><th>Date</th><th>Platform</th><th>Title 1</th><th>Title 2</th><th>Title 3</th><th>Action</th></tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- App script (module) -->
   <script type="module" src="script.js"></script>
 </body>
 </html>
