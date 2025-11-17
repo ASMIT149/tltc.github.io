@@ -1,10 +1,8 @@
-// script.js (module)
+// script.js (module) - email/password auth only (Google/Facebook removed)
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
 import {
   getAuth,
-  GoogleAuthProvider,
-  FacebookAuthProvider,
-  signInWithPopup,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
@@ -36,9 +34,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const googleProvider = new GoogleAuthProvider();
-const fbProvider = new FacebookAuthProvider();
-
 const $ = id => document.getElementById(id) || null;
 
 // views
@@ -61,27 +56,31 @@ let lineChart = null, pieChart = null;
   t(); setInterval(t,1000);
 })();
 
-// ---------- AUTH ----------
-window.googleSign = async function(){
-  try { await signInWithPopup(auth, googleProvider); } catch(e){ console.error(e); $('authMessage') && ($('authMessage').textContent = e.message || 'Google sign-in failed'); }
-};
-
-window.facebookSign = async function(){
-  try { await signInWithPopup(auth, fbProvider); } catch(e){ console.error(e); $('authMessage') && ($('authMessage').textContent = e.message || 'Facebook sign-in failed'); }
-};
-
+// ---------- AUTH (email only) ----------
 window.emailSign = async function(){
   const email = ($('email')?.value || '').trim();
   const pass = ($('password')?.value || '');
   if (!email || !pass) { $('authMessage') && ($('authMessage').textContent = 'Enter email and password'); return; }
-  try { await signInWithEmailAndPassword(auth, email, pass); } catch(e){ console.error(e); $('authMessage') && ($('authMessage').textContent = e.message || 'Sign-in failed'); }
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+    $('authMessage') && ($('authMessage').textContent = '');
+  } catch (err) {
+    console.error('signin error', err);
+    $('authMessage') && ($('authMessage').textContent = err.message || 'Sign-in failed');
+  }
 };
 
 window.registerEmail = async function(){
   const email = ($('email')?.value || '').trim();
   const pass = ($('password')?.value || '');
   if (!email || !pass) { $('authMessage') && ($('authMessage').textContent = 'Enter email and password to register'); return; }
-  try { await createUserWithEmailAndPassword(auth, email, pass); } catch(e){ console.error(e); $('authMessage') && ($('authMessage').textContent = e.message || 'Register failed'); }
+  try {
+    await createUserWithEmailAndPassword(auth, email, pass);
+    $('authMessage') && ($('authMessage').textContent = '';
+  } catch (err) {
+    console.error('register error', err);
+    $('authMessage') && ($('authMessage').textContent = err.message || 'Registration failed');
+  }
 };
 
 window.signOutUser = function(){
@@ -138,7 +137,6 @@ async function loadUploads(){
       stats[d.platform] = (stats[d.platform] || 0) + 1;
     });
 
-    // top table
     rows.slice(0,10).forEach(r => {
       const tr = document.createElement('tr');
       tr.innerHTML = `<td>${r.date||''}</td><td>${r.platform||''}</td><td>${escapeHtml(r.title1||'')}</td><td>${escapeHtml(r.title2||'')}</td><td>${escapeHtml(r.title3||'')}</td>
@@ -146,7 +144,6 @@ async function loadUploads(){
       table.appendChild(tr);
     });
 
-    // list
     if (list) {
       rows.forEach(r => {
         const tr = document.createElement('tr');
@@ -235,7 +232,7 @@ function updateCharts(rows = [], stats = {}) {
   }
 }
 
-// ---------- CONTACT (mailto) ----------
+// ---------- CONTACT ----------
 window.sendContact = function(e){
   e.preventDefault();
   const name = ($('c_name')?.value || 'Anonymous');
