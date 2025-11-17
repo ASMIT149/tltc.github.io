@@ -3,30 +3,116 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Video Tracker — Login</title>
+  <title>Video Tracker</title>
 
-  <!-- Chart.js (kept for main page) -->
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <link rel="stylesheet" href="style.css" />
+  <style>
+  :root{
+    --bg-1:#060615;
+    --accent1:#6aa8ff;
+    --accent2:#c57bff;
+    --muted: rgba(255,255,255,0.72);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Inter, "Segoe UI", system-ui, -apple-system, Arial;
+    color:#fff;
+    min-height:100vh;
+    background:
+      radial-gradient(800px 400px at 10% 20%, rgba(122,168,255,0.06), transparent),
+      radial-gradient(900px 400px at 90% 80%, rgba(197,123,255,0.04), transparent),
+      linear-gradient(180deg,#06060a,#0b0b12);
+  }
+
+  .strip-light{
+    position:fixed;left:0;right:0;top:0;height:6px;
+    background:linear-gradient(90deg,var(--accent1),var(--accent2));
+    filter:blur(10px);z-index:50;
+  }
+
+  /* layout wrappers */
+  .container { display:flex; min-height:100vh; }
+  .left-col { width:260px; padding:28px; }
+  .content { flex:1; padding:28px; }
+
+  /* LOGIN (centered card) */
+  #loginPage { display:flex; align-items:flex-start; padding:36px; min-height:100vh; }
+  .auth-card{
+    width:420px;text-align:left;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:16px;padding:24px;border:1px solid rgba(255,255,255,0.06);backdrop-filter:blur(14px) saturate(120%);box-shadow:0 10px 30px rgba(2,4,10,0.6)
+  }
+  .brand{font-size:32px;margin:0 0 10px;background:linear-gradient(90deg,var(--accent1),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800}
+  .muted{color:var(--muted)}
+  input,textarea,select{width:100%;padding:12px;border-radius:10px;border:none;background:rgba(255,255,255,0.03);color:#fff;margin:8px 0;outline:none}
+  textarea{min-height:110px}
+  .row{display:flex;gap:10px;align-items:center}
+  .row.wrap{flex-wrap:wrap}
+  .btn{padding:10px 12px;border-radius:10px;border:none;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.4)}
+  .btn.primary{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#041225;font-weight:700}
+  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
+  .btn.oauth{padding:8px 10px;border-radius:10px;background:rgba(255,255,255,0.03)}
+  .error-text{color:#ff8b8b;margin-top:8px}
+
+  /* APP layout */
+  .app { display:flex; min-height:100vh; }
+  .sidebar{width:240px;padding:22px;display:flex;flex-direction:column;gap:18px;border-radius:16px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));border:1px solid rgba(255,255,255,0.04);backdrop-filter:blur(10px)}
+  .logo{font-weight:800;background:linear-gradient(90deg,var(--accent1),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;font-size:20px}
+  nav{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+  .navlink{display:block;padding:10px;border-radius:10px;color:var(--muted);text-decoration:none;cursor:pointer}
+  .navlink:hover{background:rgba(255,255,255,0.02);color:#fff}
+
+  .profile-fixed{display:flex;gap:12px;align-items:center;flex-direction:column;padding:12px;border-radius:12px}
+  .profile-fixed .avatar{width:64px;height:64px;border-radius:10px;background:linear-gradient(90deg,var(--accent2),var(--accent1));display:grid;place-items:center;font-weight:700;font-size:18px}
+  .profile-fixed .meta{width:100%;text-align:center}
+  .profile-name{font-weight:700;color:#fff;margin-bottom:4px}
+  .profile-email{font-size:13px;color:rgba(255,255,255,0.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
+
+  .main{flex:1;padding-left:28px;padding-right:28px}
+  .main-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding:16px}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .card{padding:14px;border-radius:12px}
+  .card.large{grid-column:span 2;min-height:260px}
+  .card.table-card{grid-column:span 3}
+  .table-wrap{overflow:auto;border-radius:10px;padding:6px;background:rgba(255,255,255,0.01)}
+  table{width:100%;border-collapse:collapse;color:rgba(255,255,255,0.9)}
+  th,td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.03);text-align:left}
+  .delete-btn{background:transparent;border:none;color:#ff8b8b;cursor:pointer}
+
+  .hidden{display:none}
+
+  /* responsive */
+  @media (max-width:1000px){
+    .grid{grid-template-columns:1fr}
+    .sidebar{display:none}
+    .main{padding:12px}
+  }
+
+  /* small helpers */
+  .centered { display:flex;align-items:center;justify-content:center; }
+  </style>
 </head>
 <body>
   <div class="strip-light" aria-hidden="true"></div>
 
-  <!-- LOGIN PAGE (REQUIRED) -->
+  <!-- LOGIN PAGE: must sign in first -->
   <main id="loginPage" class="auth-screen">
-    <div class="auth-card glass-card" role="region" aria-label="Sign in">
+    <div class="auth-card" role="region" aria-label="Sign in">
       <h1 class="brand">Video Tracker</h1>
-      <p class="muted">Please sign in to continue</p>
+      <p class="muted">Sign in to continue</p>
 
       <input id="email" type="email" placeholder="Email" autocomplete="username" />
       <input id="password" type="password" placeholder="Password" autocomplete="current-password" />
+
       <div class="row" style="margin-top:8px;">
         <button id="emailSignBtn" class="btn primary" onclick="emailSign()">Sign in with Email</button>
-        <button id="regBtn" class="btn ghost" onclick="toggleRegister()">Register</button>
+        <button id="regBtn" class="btn ghost" onclick="registerEmail()">Register</button>
       </div>
 
-      <div style="margin:12px 0;text-align:center">
+      <div style="margin:14px 0;text-align:center">
         <div class="or">OR</div>
         <div style="display:flex;gap:10px;justify-content:center;margin-top:10px">
           <button class="btn oauth" id="googleBtn" onclick="googleSign()">Sign in with Google</button>
@@ -35,98 +121,448 @@
       </div>
 
       <p id="authMessage" class="error-text" role="alert" aria-live="polite"></p>
+      <p class="muted small" style="margin-top:8px">If you plan to use Google/Facebook sign-in, make sure your domain is added to Firebase Auth → Authorized domains and providers are enabled in Firebase Console.</p>
     </div>
   </main>
 
-  <!-- APP (HIDDEN UNTIL AUTHENTICATED) -->
-  <div id="appShell" class="app hidden" aria-hidden="true">
-    <aside class="sidebar glass-card">
-      <div class="logo">VT</div>
-      <nav>
-        <a href="#dashboard" class="navlink" onclick="navigate('dashboard')">Dashboard</a>
-        <a href="#uploads" class="navlink" onclick="navigate('uploads')">Uploads</a>
-        <a href="#contact" class="navlink" onclick="navigate('contact')">Contact</a>
-      </nav>
+  <!-- APP (hidden until authenticated) -->
+  <div id="appPage" class="hidden">
+    <div class="container">
+      <aside class="left-col">
+        <div class="sidebar">
+          <div class="logo">VT</div>
+          <nav>
+            <div class="navlink" onclick="navigate('dashboard')">Dashboard</div>
+            <div class="navlink" onclick="navigate('uploads')">Uploads</div>
+            <div class="navlink" onclick="navigate('contact')">Contact</div>
+          </nav>
 
-      <div class="profile glass-card small" style="margin-top:auto">
-        <div class="avatar" id="avatarLetter">A</div>
-        <div class="meta">
-          <div id="profileName">Asmit Kamble</div>
-          <div id="profileEmail" class="muted small">ashkamble149@gmail.com</div>
-        </div>
-        <button class="btn tiny logout-btn" onclick="signOutUser()">Logout</button>
-      </div>
-    </aside>
-
-    <main class="main">
-      <!-- Dashboard -->
-      <section id="dashboardView" class="view">
-        <header class="main-head glass-card">
-          <h2>Overview</h2>
-          <div id="clock" class="clock muted"></div>
-        </header>
-
-        <div class="grid">
-          <div class="card stat glass-card">
-            <div class="stat-title">Total Uploads</div>
-            <div id="totalUploadsBig" class="stat-value">0</div>
-          </div>
-
-          <div class="card large glass-card">
-            <div class="card-head">Uploads Over Time</div>
-            <canvas id="lineChart"></canvas>
-          </div>
-
-          <div class="card medium glass-card">
-            <div class="card-head">Platform Distribution</div>
-            <canvas id="pieChart"></canvas>
-          </div>
-
-          <div class="card table-card glass-card">
-            <div class="card-head">Latest Uploads</div>
-            <div class="table-wrap">
-              <table id="uploadTable">
-                <thead><tr><th>Date</th><th>Platform</th><th>Title 1</th><th>Title 2</th><th>Title 3</th><th>Action</th></tr></thead>
-                <tbody></tbody>
-              </table>
+          <div class="profile-fixed" style="margin-top:auto">
+            <div class="avatar" id="avatarLetter">A</div>
+            <div class="meta">
+              <div id="profileName" class="profile-name">Asmit Kamble</div>
+              <div id="profileEmail" class="profile-email" title="ashkamble149@gmail.com">ashkamble149@gmail.com</div>
             </div>
+            <button class="btn ghost" onclick="signOutUser()">Logout</button>
           </div>
         </div>
-      </section>
+      </aside>
 
-      <!-- Uploads page -->
-      <section id="uploadsView" class="view hidden">
-        <div class="panel glass-card">
-          <h3>Add Upload (3 Titles)</h3>
-          <div class="row wrap">
-            <input type="date" id="u_date" />
-            <select id="u_platform"><option value="">Platform</option><option>YouTube</option><option>Instagram</option><option>Facebook</option></select>
-            <input id="u_title1" placeholder="Title 1" />
-            <input id="u_title2" placeholder="Title 2 (optional)" />
-            <input id="u_title3" placeholder="Title 3 (optional)" />
-            <button class="btn primary" onclick="addUpload()">Save</button>
-          </div>
-        </div>
+      <main class="content">
+        <div class="main">
+          <!-- Dashboard -->
+          <section id="view-dashboard" class="view">
+            <header class="main-head card">
+              <h2>Overview</h2>
+              <div id="clock" class="muted"></div>
+            </header>
 
-        <div class="panel glass-card">
-          <h3>Your Uploads</h3>
-          <div class="table-wrap">
-            <table id="uploadListTbl"><thead><tr><th>Date</th><th>Platform</th><th>Title 1</th><th>Title 2</th><th>Title 3</th><th>Action</th></tr></thead><tbody></tbody></table>
-          </div>
-        </div>
-      </section>
+            <div class="grid">
+              <div class="card stat card">
+                <div class="muted">Total Uploads</div>
+                <div id="totalUploads" style="font-size:32px;font-weight:800;margin-top:10px">0</div>
+              </div>
 
-      <!-- Contact -->
-      <section id="contactView" class="view hidden">
-        <div class="panel glass-card">
-          <h3>Contact Us</h3>
-          <p class="muted">For support email:</p>
-          <p><strong>ashkamble149@gmail.com</strong></p>
+              <div class="card large card">
+                <div style="font-weight:700;margin-bottom:8px">Uploads Over Time</div>
+                <canvas id="uploadLine"></canvas>
+              </div>
+
+              <div class="card medium card">
+                <div style="font-weight:700;margin-bottom:8px">Platform Distribution</div>
+                <canvas id="uploadPie"></canvas>
+              </div>
+
+              <div class="card table-card card">
+                <div style="font-weight:700;margin-bottom:8px">Latest Uploads</div>
+                <div class="table-wrap">
+                  <table id="uploadTable">
+                    <thead><tr><th>Date</th><th>Platform</th><th>Title 1</th><th>Title 2</th><th>Title 3</th><th>Action</th></tr></thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Uploads -->
+          <section id="view-uploads" class="view hidden">
+            <div class="card">
+              <h3>Add Upload (3 titles)</h3>
+              <div class="row wrap" style="margin-top:12px;flex-direction:column">
+                <input type="date" id="dateInput" />
+                <select id="platformInput">
+                  <option value="">Select Platform</option>
+                  <option>YouTube</option>
+                  <option>Instagram</option>
+                  <option>Facebook</option>
+                </select>
+                <input id="title1" placeholder="Title 1" />
+                <input id="title2" placeholder="Title 2 (optional)" />
+                <input id="title3" placeholder="Title 3 (optional)" />
+                <div style="width:100%;display:flex;justify-content:flex-start;margin-top:8px">
+                  <button class="btn primary" onclick="addUpload()">Save</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="card" style="margin-top:18px">
+              <h3>Your Uploads</h3>
+              <div class="table-wrap" style="margin-top:10px">
+                <table id="uploadList">
+                  <thead><tr><th>Date</th><th>Platform</th><th>Title 1</th><th>Title 2</th><th>Title 3</th><th>Action</th></tr></thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- Contact -->
+          <section id="view-contact" class="view hidden">
+            <div class="card">
+              <h3>Contact Us</h3>
+              <p class="muted">Send a message — it will open your email client addressed to <strong>ashkamble149@gmail.com</strong></p>
+
+              <form id="contactForm" onsubmit="sendContact(event)">
+                <input id="c_name" placeholder="Your name" value="Asmit Kamble" />
+                <input id="c_email" type="email" placeholder="Your email" />
+                <textarea id="c_message" placeholder="Message"></textarea>
+                <div style="margin-top:10px">
+                  <button class="btn primary" type="submit">Send Message</button>
+                  <button class="btn ghost" type="button" onclick="resetContact()">Reset</button>
+                </div>
+              </form>
+            </div>
+          </section>
+
         </div>
-      </section>
-    </main>
+      </main>
+    </div>
   </div>
 
-  <script type="module" src="script.js"></script>
+  <!-- Firebase + App logic: single-file (module) -->
+  <script type="module">
+  // ---------- IMPORTANT ----------
+  // Before using Google/Facebook sign-in:
+  // 1) Firebase Console -> Authentication -> Sign-in method: Enable Google and Facebook providers.
+  //    For Facebook you'll need an FB App ID & Secret and add the correct OAuth redirect URL.
+  // 2) Firebase Console -> Authentication -> Authorized domains: add your site domain (e.g. asmit149.github.io).
+  // 3) Keep your Firestore rules (owner-based). The client writes ownerUid on create.
+
+  // Firebase + Firestore imports
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+  import {
+    getAuth,
+    GoogleAuthProvider,
+    FacebookAuthProvider,
+    signInWithPopup,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+  import {
+    getFirestore,
+    collection,
+    addDoc,
+    getDocs,
+    deleteDoc,
+    doc,
+    query,
+    orderBy
+  } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+  // Your Firebase config (you provided this earlier)
+  const firebaseConfig = {
+    apiKey: "AIzaSyCcd1CCTlJRZ2YOhbziRVdiZlvVzUHiYm4",
+    authDomain: "video-tracker-7f709.firebaseapp.com",
+    projectId: "video-tracker-7f709",
+    storageBucket: "video-tracker-7f709.appspot.com",
+    messagingSenderId: "6567580876",
+    appId: "1:6567580876:web:e982351a06897faea45e69",
+    measurementId: "G-554K9DJVCJ"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const googleProvider = new GoogleAuthProvider();
+  const fbProvider = new FacebookAuthProvider();
+
+  // Safe selector
+  const $ = id => document.getElementById(id) || null;
+
+  // UI refs
+  const loginPage = $('loginPage');
+  const appPage = $('appPage');
+  const views = {
+    dashboard: $('view-dashboard'),
+    uploads: $('view-uploads'),
+    contact: $('view-contact')
+  };
+
+  // Charts
+  let lineChart = null, pieChart = null;
+
+  // Clock
+  function startClock(){
+    const c = $('clock');
+    if (!c) return;
+    function tick(){ c.textContent = new Date().toLocaleTimeString(); }
+    tick(); setInterval(tick, 1000);
+  }
+  startClock();
+
+  // Auth actions
+  window.googleSign = async function(){
+    try{
+      await signInWithPopup(auth, googleProvider);
+      // onAuthStateChanged handles UI
+    } catch(e){
+      console.error(e);
+      $('authMessage') && ($('authMessage').textContent = e.message || 'Google sign-in failed');
+    }
+  };
+
+  window.facebookSign = async function(){
+    try{
+      await signInWithPopup(auth, fbProvider);
+    } catch(e){
+      console.error(e);
+      $('authMessage') && ($('authMessage').textContent = e.message || 'Facebook sign-in failed');
+    }
+  };
+
+  window.emailSign = async function(){
+    const email = ($('email')?.value || '').trim();
+    const password = ($('password')?.value || '');
+    if (!email || !password) { $('authMessage') && ($('authMessage').textContent = 'Enter email and password'); return; }
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch(err){
+      console.error(err);
+      $('authMessage') && ($('authMessage').textContent = err.message || 'Sign-in failed');
+    }
+  };
+
+  window.registerEmail = async function(){
+    const email = ($('email')?.value || '').trim();
+    const password = ($('password')?.value || '');
+    if (!email || !password) { $('authMessage') && ($('authMessage').textContent = 'Enter email and password to register'); return; }
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+    } catch(err){
+      console.error(err);
+      $('authMessage') && ($('authMessage').textContent = err.message || 'Registration failed');
+    }
+  };
+
+  window.signOutUser = function(){
+    signOut(auth).catch(e => console.warn('Sign out failed', e));
+  };
+
+  // onAuthStateChanged: show app only when authenticated
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      // show app
+      if (loginPage) loginPage.classList.add('hidden');
+      if (appPage) appPage.classList.remove('hidden');
+
+      // fill profile
+      $('profileEmail') && ($('profileEmail').textContent = user.email || ''); // safe
+      $('profileName') && ($('profileName').textContent = user.displayName || 'Asmit Kamble');
+      $('avatarLetter') && ($('avatarLetter').textContent = (user.displayName || user.email || 'A')[0].toUpperCase());
+
+      // load data
+      loadUploads().catch(err => console.error('loadUploads err', err));
+
+      // default view
+      showView('dashboard');
+    } else {
+      // show login
+      if (loginPage) loginPage.classList.remove('hidden');
+      if (appPage) appPage.classList.add('hidden');
+    }
+  });
+
+  // Navigation within page (protected)
+  function showView(name){
+    Object.values(views).forEach(v => v && v.classList.add('hidden'));
+    if (views[name]) views[name].classList.remove('hidden');
+  }
+  window.navigate = function(name){
+    if (!auth.currentUser) {
+      alert('Please sign in first.');
+      return;
+    }
+    showView(name);
+  };
+
+  // Firestore: load uploads (only for authenticated users)
+  async function loadUploads(){
+    const tbody = document.querySelector('#uploadTable tbody');
+    const listBody = document.querySelector('#uploadList tbody');
+    if (!tbody) throw new Error('Upload table missing');
+
+    tbody.innerHTML = '';
+    if (listBody) listBody.innerHTML = '';
+
+    // ensure user
+    if (!auth.currentUser) {
+      updateCharts([], {});
+      return;
+    }
+
+    try {
+      const q = query(collection(db, 'uploads'), orderBy('createdAt', 'desc'));
+      const snap = await getDocs(q);
+      const rows = [];
+      const stats = {};
+      snap.forEach(s => {
+        const d = s.data();
+        rows.push({ id: s.id, ...d });
+        stats[d.platform] = (stats[d.platform] || 0) + 1;
+      });
+
+      // render top rows
+      rows.slice(0, 8).forEach(r => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${r.date || ''}</td>
+          <td>${r.platform || ''}</td>
+          <td>${escapeHtml(r.title1 || '')}</td>
+          <td>${escapeHtml(r.title2 || '')}</td>
+          <td>${escapeHtml(r.title3 || '')}</td>
+          <td><button class="delete-btn" onclick="deleteUpload('${r.id}')">Delete</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // list table
+      if (listBody) {
+        rows.forEach(r => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${r.date || ''}</td>
+            <td>${r.platform || ''}</td>
+            <td>${escapeHtml(r.title1 || '')}</td>
+            <td>${escapeHtml(r.title2 || '')}</td>
+            <td>${escapeHtml(r.title3 || '')}</td>
+            <td><button class="delete-btn" onclick="deleteUpload('${r.id}')">Delete</button></td>
+          `;
+          listBody.appendChild(tr);
+        });
+      }
+
+      $('totalUploads') && ($('totalUploads').textContent = rows.length);
+      updateCharts(rows, stats);
+    } catch (err) {
+      console.error('could not load uploads', err);
+      updateCharts([], {});
+    }
+  }
+
+  // Add upload
+  window.addUpload = async function(){
+    if (!auth.currentUser) return alert('Please sign in to add uploads.');
+    const date = ($('dateInput')?.value || '');
+    const platform = ($('platformInput')?.value || '').trim();
+    const title1 = ($('title1')?.value || '').trim();
+    const title2 = ($('title2')?.value || '').trim();
+    const title3 = ($('title3')?.value || '').trim();
+    if (!date || !platform || !title1) return alert('Please fill Date, Platform and Title 1.');
+
+    try {
+      await addDoc(collection(db, 'uploads'), {
+        date, platform, title1, title2, title3,
+        ownerUid: auth.currentUser.uid,
+        createdAt: new Date().toISOString()
+      });
+      // clear inputs
+      if ($('title1')) $('title1').value = '';
+      if ($('title2')) $('title2').value = '';
+      if ($('title3')) $('title3').value = '';
+      await loadUploads();
+      alert('Saved');
+    } catch (err) {
+      console.error('save failed', err);
+      alert('Save failed: ' + (err.message || err));
+    }
+  };
+
+  // delete upload
+  window.deleteUpload = async function(id){
+    if (!confirm('Delete this upload?')) return;
+    try {
+      await deleteDoc(doc(db, 'uploads', id));
+      await loadUploads();
+    } catch (err) {
+      console.error('delete failed', err);
+      alert('Delete failed: ' + (err.message || err));
+    }
+  };
+
+  // Charts update
+  function updateCharts(rows = [], stats = {}) {
+    // line chart by date
+    const byDate = {};
+    rows.forEach(r => {
+      const d = r.date || (r.createdAt ? r.createdAt.slice(0,10) : '');
+      if (d) byDate[d] = (byDate[d] || 0) + 1;
+    });
+
+    const labels = Object.keys(byDate).length ? Object.keys(byDate).sort() : ['—'];
+    const data = Object.keys(byDate).length ? labels.map(k => byDate[k]) : [0];
+
+    const lineCtx = $('uploadLine')?.getContext('2d');
+    if (lineChart) try { lineChart.destroy(); } catch(e) {}
+    if (lineCtx) {
+      lineChart = new Chart(lineCtx, {
+        type: 'line',
+        data: { labels, datasets: [{ label: 'Uploads', data, tension: 0.36, borderColor: '#9ad', backgroundColor: 'rgba(100,170,255,0.12)', fill: true }]},
+        options: { plugins: { legend: { display: false } } }
+      });
+    }
+
+    // pie/doughnut
+    const pieCtx = $('uploadPie')?.getContext('2d');
+    if (pieChart) try { pieChart.destroy(); } catch(e) {}
+    const pieLabels = Object.keys(stats).length ? Object.keys(stats) : ['No data'];
+    const pieData = Object.keys(stats).length ? Object.values(stats) : [1];
+    if (pieCtx) {
+      pieChart = new Chart(pieCtx, {
+        type: 'doughnut',
+        data: { labels: pieLabels, datasets: [{ data: pieData, backgroundColor: ['#6aa8ff', '#c57bff', '#ffcc66'] }]},
+        options: { plugins: { legend: { position: 'bottom', labels: { color: '#fff' } } } }
+      });
+    }
+  }
+
+  // Contact form (mailto)
+  window.sendContact = function(e){
+    e.preventDefault();
+    const name = ($('c_name')?.value || 'Anonymous');
+    const mail = ($('c_email')?.value || '');
+    const msg = ($('c_message')?.value || '');
+    const to = 'ashkamble149@gmail.com';
+    const subject = encodeURIComponent(`Website message from ${name}`);
+    const body = encodeURIComponent(`From: ${name}\nEmail: ${mail}\n\n${msg}`);
+    window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+  };
+  window.resetContact = function(){ if($('contactForm')) $('contactForm').reset(); if($('c_name')) $('c_name').value = 'Asmit Kamble'; };
+
+  // small helper
+  function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+
+  // initialize view: show login initially (auth will flip it if user already signed in)
+  (function init(){
+    if (loginPage) loginPage.classList.remove('hidden');
+    if (appPage) appPage.classList.add('hidden');
+    // show placeholder charts until data loads
+    updateCharts([], {});
+  })();
+
+  </script>
 </body>
 </html>
