@@ -60,7 +60,7 @@ textarea{min-height:110px;resize:vertical}
 .meta{text-align:center}
 .profile-email{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px}
 
-/* MOBILE TOPBAR (hidden by default, shown on small screens) */
+/* MOBILE TOPBAR (display controlled by media query) */
 .mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:10px 14px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-bottom:1px solid rgba(255,255,255,0.03)}
 .mobile-vt{display:flex;align-items:center;gap:10px}
 .mobile-avatar{width:44px;height:44px;border-radius:8px;background:linear-gradient(90deg,var(--accent2),var(--accent1));display:grid;place-items:center;font-weight:700;font-size:18px}
@@ -93,8 +93,6 @@ th,td{padding:8px;border-bottom:1px solid rgba(255,255,255,0.03);text-align:left
   .btn{width:100%}
   .row{flex-direction:column}
 
-  /* show the mobile topbar */
-  .mobile-topbar{display:flex}
-  /* ensure mobile topbar sits above main content */
-  #mobileTopbar{position:sticky;top:0;z-index:999;background:linear-gradient(180deg, rgba(2,4,10,0.6), rgba(2,4,10,0.6));backdrop-filter:blur(8px)}
+  /* show the mobile topbar on small screens */
+  .mobile-topbar{display:flex; position:sticky; top:0; z-index:999; background:linear-gradient(180deg, rgba(2,4,10,0.6), rgba(2,4,10,0.6)); backdrop-filter:blur(8px)}
 }
