@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Video Tracker — Dashboard</title>
+  <title>Video Tracker — Login</title>
 
-  <!-- Chart.js -->
+  <!-- Chart.js (kept for main page) -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <link rel="stylesheet" href="style.css" />
@@ -13,140 +13,120 @@
 <body>
   <div class="strip-light" aria-hidden="true"></div>
 
-  <div id="app" class="app">
+  <!-- LOGIN PAGE (REQUIRED) -->
+  <main id="loginPage" class="auth-screen">
+    <div class="auth-card glass-card" role="region" aria-label="Sign in">
+      <h1 class="brand">Video Tracker</h1>
+      <p class="muted">Please sign in to continue</p>
 
-    <!-- LOGIN PAGE -->
-    <div id="page-login" class="page center">
-      <div class="auth-card glass-card" role="region" aria-label="Authentication">
-        <h1 class="brand">Video Tracker</h1>
-        <p class="muted">Sign in to manage uploads and analytics</p>
+      <input id="email" type="email" placeholder="Email" autocomplete="username" />
+      <input id="password" type="password" placeholder="Password" autocomplete="current-password" />
+      <div class="row" style="margin-top:8px;">
+        <button id="emailSignBtn" class="btn primary" onclick="emailSign()">Sign in with Email</button>
+        <button id="regBtn" class="btn ghost" onclick="toggleRegister()">Register</button>
+      </div>
 
-        <input id="email" type="email" placeholder="Email" autocomplete="username" />
-        <input id="password" type="password" placeholder="Password" autocomplete="current-password" />
-        <div class="row">
-          <button id="authButton" class="btn primary" onclick="window.login()">Login</button>
-          <button id="switchBtn" class="btn ghost" onclick="window.toggleAuthMode()">Create</button>
-        </div>
-        <p id="loginError" class="error-text" role="alert" aria-live="polite"></p>
-
-        <p class="muted small">Or continue as guest (read-only)</p>
-        <div class="row">
-          <button class="btn secondary" onclick="window.guestView()">Continue as Guest</button>
+      <div style="margin:12px 0;text-align:center">
+        <div class="or">OR</div>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:10px">
+          <button class="btn oauth" id="googleBtn" onclick="googleSign()">Sign in with Google</button>
+          <button class="btn oauth" id="facebookBtn" onclick="facebookSign()">Sign in with Facebook</button>
         </div>
       </div>
+
+      <p id="authMessage" class="error-text" role="alert" aria-live="polite"></p>
     </div>
+  </main>
 
-    <!-- APP SHELL -->
-    <div id="page-app" class="page hidden" aria-hidden="true">
-      <aside class="sidebar glass-card float-left" role="navigation" aria-label="Sidebar">
-        <div class="logo">VT</div>
-        <nav>
-          <a href="#dashboard" class="navlink" data-route onclick="location.hash='dashboard'">Dashboard</a>
-          <a href="#uploads" class="navlink" data-route onclick="location.hash='uploads'">Uploads</a>
-          <a href="#contact" class="navlink" data-route onclick="location.hash='contact'">Contact</a>
-        </nav>
+  <!-- APP (HIDDEN UNTIL AUTHENTICATED) -->
+  <div id="appShell" class="app hidden" aria-hidden="true">
+    <aside class="sidebar glass-card">
+      <div class="logo">VT</div>
+      <nav>
+        <a href="#dashboard" class="navlink" onclick="navigate('dashboard')">Dashboard</a>
+        <a href="#uploads" class="navlink" onclick="navigate('uploads')">Uploads</a>
+        <a href="#contact" class="navlink" onclick="navigate('contact')">Contact</a>
+      </nav>
 
-        <div class="profile glass-card small" style="margin-top:auto">
-          <div class="avatar">A</div>
-          <div class="meta">
-            <div id="profileName">Asmit Kamble</div>
-            <div id="profileEmail" class="muted small">ashkamble149@gmail.com</div>
+      <div class="profile glass-card small" style="margin-top:auto">
+        <div class="avatar" id="avatarLetter">A</div>
+        <div class="meta">
+          <div id="profileName">Asmit Kamble</div>
+          <div id="profileEmail" class="muted small">ashkamble149@gmail.com</div>
+        </div>
+        <button class="btn tiny logout-btn" onclick="signOutUser()">Logout</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <!-- Dashboard -->
+      <section id="dashboardView" class="view">
+        <header class="main-head glass-card">
+          <h2>Overview</h2>
+          <div id="clock" class="clock muted"></div>
+        </header>
+
+        <div class="grid">
+          <div class="card stat glass-card">
+            <div class="stat-title">Total Uploads</div>
+            <div id="totalUploadsBig" class="stat-value">0</div>
           </div>
-          <button id="logoutBtn" class="btn tiny logout-btn" onclick="window.logout()">Logout</button>
+
+          <div class="card large glass-card">
+            <div class="card-head">Uploads Over Time</div>
+            <canvas id="lineChart"></canvas>
+          </div>
+
+          <div class="card medium glass-card">
+            <div class="card-head">Platform Distribution</div>
+            <canvas id="pieChart"></canvas>
+          </div>
+
+          <div class="card table-card glass-card">
+            <div class="card-head">Latest Uploads</div>
+            <div class="table-wrap">
+              <table id="uploadTable">
+                <thead><tr><th>Date</th><th>Platform</th><th>Title 1</th><th>Title 2</th><th>Title 3</th><th>Action</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Uploads page -->
+      <section id="uploadsView" class="view hidden">
+        <div class="panel glass-card">
+          <h3>Add Upload (3 Titles)</h3>
+          <div class="row wrap">
+            <input type="date" id="u_date" />
+            <select id="u_platform"><option value="">Platform</option><option>YouTube</option><option>Instagram</option><option>Facebook</option></select>
+            <input id="u_title1" placeholder="Title 1" />
+            <input id="u_title2" placeholder="Title 2 (optional)" />
+            <input id="u_title3" placeholder="Title 3 (optional)" />
+            <button class="btn primary" onclick="addUpload()">Save</button>
+          </div>
         </div>
 
-        <div class="copyright muted small">© Video Tracker</div>
-      </aside>
-
-      <main class="main" role="main">
-        <!-- Dashboard view -->
-        <section id="view-dashboard" class="view">
-          <header class="main-head glass-card">
-            <h2>Overview</h2>
-            <div id="clock" class="clock muted" aria-live="polite"></div>
-          </header>
-
-          <div class="grid">
-            <div class="card stat glass-card">
-              <div class="stat-title">Total Uploads</div>
-              <div id="totalUploadsBig" class="stat-value">0</div>
-            </div>
-
-            <div class="card stat glass-card">
-              <div class="stat-title">Platforms</div>
-              <div class="stat-value">YouTube · Instagram · Facebook</div>
-            </div>
-
-            <div class="card stat glass-card">
-              <div class="stat-title">Top Video</div>
-              <div class="stat-value" id="topVideo">—</div>
-            </div>
-
-            <div class="card large glass-card">
-              <div class="card-head">Uploads Over Time</div>
-              <canvas id="lineChart" aria-label="Uploads over time chart"></canvas>
-            </div>
-
-            <div class="card medium glass-card">
-              <div class="card-head">Platform Distribution</div>
-              <canvas id="pieChart" aria-label="Platform distribution chart"></canvas>
-            </div>
-
-            <div class="card table-card glass-card">
-              <div class="card-head">Latest Uploads</div>
-              <div class="table-wrap">
-                <table id="uploadTable">
-                  <thead><tr><th>Date</th><th>Platform</th><th>Title</th><th>Action</th></tr></thead>
-                  <tbody></tbody>
-                </table>
-              </div>
-            </div>
+        <div class="panel glass-card">
+          <h3>Your Uploads</h3>
+          <div class="table-wrap">
+            <table id="uploadListTbl"><thead><tr><th>Date</th><th>Platform</th><th>Title 1</th><th>Title 2</th><th>Title 3</th><th>Action</th></tr></thead><tbody></tbody></table>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <!-- Uploads page -->
-        <section id="view-uploads" class="view hidden">
-          <div class="panel glass-card">
-            <h3>Add Upload</h3>
-            <div class="row wrap">
-              <input type="date" id="u_date" />
-              <select id="u_platform"><option value="">Platform</option><option>YouTube</option><option>Instagram</option><option>Facebook</option></select>
-              <input id="u_title" placeholder="Video title" />
-              <button class="btn primary" onclick="window.addUpload()">Save</button>
-            </div>
-          </div>
-
-          <div class="panel glass-card">
-            <h3>Your Uploads</h3>
-            <div class="table-wrap">
-              <table id="uploadListTbl"><thead><tr><th>Date</th><th>Platform</th><th>Title</th><th>Action</th></tr></thead><tbody></tbody></table>
-            </div>
-          </div>
-        </section>
-
-        <!-- Contact page -->
-        <section id="view-contact" class="view hidden">
-          <div class="panel glass-card">
-            <h3>Contact Us</h3>
-            <p class="muted">For support email:</p>
-            <p><strong>ashkamble149@gmail.com</strong></p>
-
-            <form id="contactForm" onsubmit="window.sendContact(event)">
-              <input id="c_name" placeholder="Your name" value="Asmit Kamble" />
-              <input id="c_email" type="email" placeholder="Your email" value="ashkamble149@gmail.com" />
-              <textarea id="c_message" placeholder="Message"></textarea>
-              <div class="row">
-                <button class="btn primary" type="submit">Send</button>
-                <button class="btn ghost" type="button" onclick="window.resetContact()">Reset</button>
-              </div>
-            </form>
-          </div>
-        </section>
-      </main>
-    </div>
+      <!-- Contact -->
+      <section id="contactView" class="view hidden">
+        <div class="panel glass-card">
+          <h3>Contact Us</h3>
+          <p class="muted">For support email:</p>
+          <p><strong>ashkamble149@gmail.com</strong></p>
+        </div>
+      </section>
+    </main>
   </div>
 
-  <!-- Application script (module) -->
   <script type="module" src="script.js"></script>
 </body>
 </html>
