@@ -1,4 +1,4 @@
-// script.js (module) - email/password only; clear error messages + mobile-ready UI
+// script.js (module) - email/password only with improved register flow and register animation
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
 import {
@@ -57,7 +57,7 @@ let lineChart = null, pieChart = null;
 })();
 
 // ---------- AUTH (email only) ----------
-// helper to set message nicely
+// helper to set message nicely and style
 function setAuthMessage(msg, isError = true){
   const el = $('authMessage');
   if (!el) return;
@@ -65,34 +65,71 @@ function setAuthMessage(msg, isError = true){
   el.style.color = isError ? '#ff8b8b' : '#9ef2b8';
 }
 
-// improved sign-in with friendly messages
+// disable/enable buttons
+function setButtonsDisabled(disabled){
+  const emailBtn = $('emailBtn');
+  const regBtn = $('regBtn');
+  if (emailBtn) emailBtn.disabled = disabled;
+  if (regBtn) regBtn.disabled = disabled;
+  if (regBtn) {
+    if (disabled) regBtn.classList.add('disabled');
+    else regBtn.classList.remove('disabled');
+  }
+}
+
+// animate register button
+function animateRegisterButton(){
+  const regBtn = $('regBtn');
+  if (!regBtn) return;
+  regBtn.classList.remove('animate');
+  // force reflow to restart animation
+  void regBtn.offsetWidth;
+  regBtn.classList.add('animate');
+  regBtn.addEventListener('animationend', () => regBtn.classList.remove('animate'), { once: true });
+}
+
+// sign-in
 window.emailSign = async function(){
   setAuthMessage('');
   const email = ($('email')?.value || '').trim();
   const pass = ($('password')?.value || '');
   if (!email || !pass) { setAuthMessage('Please enter both email and password.'); return; }
+  setButtonsDisabled(true);
   try {
     await signInWithEmailAndPassword(auth, email, pass);
     setAuthMessage('', false);
   } catch (err) {
     console.error('signin error', err);
-    // show friendly messages based on firebase error code
     const code = err.code || '';
     if (code === 'auth/wrong-password') setAuthMessage('Wrong password. Please try again.');
     else if (code === 'auth/user-not-found' || code === 'auth/invalid-email' || code === 'auth/user-disabled') setAuthMessage('Invalid credentials. Please check your email or register first.');
     else if (code === 'auth/too-many-requests') setAuthMessage('Too many failed attempts. Try again later.');
     else setAuthMessage(err.message || 'Sign-in failed. Please check credentials.');
+  } finally {
+    setButtonsDisabled(false);
   }
 };
 
+// register -> explicit sign-in after create to ensure logged-in state
 window.registerEmail = async function(){
   setAuthMessage('');
   const email = ($('email')?.value || '').trim();
   const pass = ($('password')?.value || '');
   if (!email || !pass) { setAuthMessage('Please enter both email and password to register.'); return; }
+  if (pass.length < 6) { setAuthMessage('Password must be at least 6 characters.'); return; }
+
+  // animate button
+  animateRegisterButton();
+  setButtonsDisabled(true);
+
   try {
+    // create user
     await createUserWithEmailAndPassword(auth, email, pass);
-    setAuthMessage('Registered successfully — you are signed in.', false);
+    // createUserWithEmailAndPassword usually signs user in automatically,
+    // but to be safe we call signInWithEmailAndPassword immediately after
+    await signInWithEmailAndPassword(auth, email, pass);
+    setAuthMessage('Registered and signed in.', false);
+    // auth state handler will show app
   } catch (err) {
     console.error('register error', err);
     const code = err.code || '';
@@ -100,6 +137,8 @@ window.registerEmail = async function(){
     else if (code === 'auth/invalid-email') setAuthMessage('Invalid email address.');
     else if (code === 'auth/weak-password') setAuthMessage('Password too weak (min 6 characters).');
     else setAuthMessage(err.message || 'Registration failed.');
+  } finally {
+    setButtonsDisabled(false);
   }
 };
 
@@ -167,7 +206,7 @@ async function loadUploads(){
     if (list) {
       rows.forEach(r => {
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${r.date||''}</td><td>${r.platform||''}</td><td>${escapeHtml(r.title1||'')}</td><td>${escapeHtml(r.title2||'')}</td><td>${escapeHtml(r.title3||')}</td>
+        tr.innerHTML = `<td>${r.date||''}</td><td>${r.platform||''}</td><td>${escapeHtml(r.title1||'')}</td><td>${escapeHtml(r.title2||'')}</td><td>${escapeHtml(r.title3||'')}</td>
           <td><button class="delete-btn" onclick="deleteUpload('${r.id}')">Delete</button></td>`;
         list.appendChild(tr);
       });
