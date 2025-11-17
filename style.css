@@ -60,8 +60,8 @@ textarea{min-height:110px;resize:vertical}
 .meta{text-align:center}
 .profile-email{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px}
 
-/* MOBILE TOPBAR (display controlled by media query) */
-.mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:10px 14px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-bottom:1px solid rgba(255,255,255,0.03)}
+/* MOBILE TOPBAR - default SHOWN (we hide it on wide screens below) */
+.mobile-topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-bottom:1px solid rgba(255,255,255,0.03);position:sticky;top:0;z-index:9999}
 .mobile-vt{display:flex;align-items:center;gap:10px}
 .mobile-avatar{width:44px;height:44px;border-radius:8px;background:linear-gradient(90deg,var(--accent2),var(--accent1));display:grid;place-items:center;font-weight:700;font-size:18px}
 .mobile-meta{display:flex;flex-direction:column}
@@ -83,7 +83,12 @@ th,td{padding:8px;border-bottom:1px solid rgba(255,255,255,0.03);text-align:left
 
 .form-col{display:flex;flex-direction:column;gap:10px;margin-top:12px}
 
-/* Responsive rules: show mobile topbar, hide desktop sidebar */
+/* Hide mobile topbar on wider screens and show sidebar */
+@media (min-width:901px) {
+  .mobile-topbar { display: none; }
+}
+
+/* Responsive rules */
 @media (max-width:900px){
   .center-screen{padding:12px}
   .auth-card{width:100%}
@@ -92,7 +97,4 @@ th,td{padding:8px;border-bottom:1px solid rgba(255,255,255,0.03);text-align:left
   .main{padding:12px}
   .btn{width:100%}
   .row{flex-direction:column}
-
-  /* show the mobile topbar on small screens */
-  .mobile-topbar{display:flex; position:sticky; top:0; z-index:999; background:linear-gradient(180deg, rgba(2,4,10,0.6), rgba(2,4,10,0.6)); backdrop-filter:blur(8px)}
 }
