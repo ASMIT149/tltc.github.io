@@ -1,4 +1,4 @@
-// script.js (works with the included compat SDKs)
+// script.js (works with compat SDKs)
 //
 // Exposed functions (for inline onclicks):
 // emailSign, registerEmail, signOutUser, showSection, loadUploads, addUpload, deleteUpload, sendContact, resetContact
@@ -92,17 +92,45 @@ async function registerEmail(){
 /* ====== Auth state observer ====== */
 auth.onAuthStateChanged(user => {
   if (user) {
+    // show app & populate both desktop and mobile profile fields
     if ($('loginView')) $('loginView').classList.add('hidden');
     if ($('appView')) $('appView').classList.remove('hidden');
-    if ($('profileEmail')) $('profileEmail').textContent = user.email || '';
-    if ($('profileName')) $('profileName').textContent = user.displayName || 'Asmit Kamble';
-    if ($('avatarLetter')) $('avatarLetter').textContent = (user.displayName || user.email || 'A')[0].toUpperCase();
+
+    const displayName = user.displayName || 'Asmit Kamble';
+    const email = user.email || '';
+
+    // desktop
+    if ($('profileEmail')) $('profileEmail').textContent = email;
+    if ($('profileName')) $('profileName').textContent = displayName;
+    if ($('avatarLetter')) $('avatarLetter').textContent = (displayName || email || 'A')[0].toUpperCase();
+
+    // mobile
+    if ($('mobileProfileEmail')) $('mobileProfileEmail').textContent = email;
+    if ($('mobileProfileName')) $('mobileProfileName').textContent = displayName;
+    if ($('mobileAvatarLetter')) $('mobileAvatarLetter').textContent = (displayName || email || 'A')[0].toUpperCase();
+
+    // ensure mobile topbar visible if on small screen
+    const mt = $('mobileTopbar');
+    if (mt) {
+      // only show mobileTopbar if screen small
+      if (window.innerWidth <= 900) mt.classList.remove('hidden-mobile');
+      else mt.classList.add('hidden-mobile');
+    }
+
     loadUploads().catch(e=>console.error(e));
     showSection('dashboard');
   } else {
     if ($('loginView')) $('loginView').classList.remove('hidden');
     if ($('appView')) $('appView').classList.add('hidden');
   }
+});
+
+// handle screen resize to toggle mobile topbar visibility
+window.addEventListener('resize', () => {
+  const mt = $('mobileTopbar');
+  if (!mt) return;
+  if (window.innerWidth <= 900) mt.classList.remove('hidden-mobile');
+  else mt.classList.add('hidden-mobile');
 });
 
 function signOutUser(){ auth.signOut().catch(e=>console.warn('signout failed', e)); }
