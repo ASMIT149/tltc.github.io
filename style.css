@@ -23,10 +23,21 @@ input,select,textarea{width:100%;padding:12px;border-radius:12px;border:none;bac
 input[type="date"]{padding:10px}
 textarea{min-height:110px;resize:vertical}
 .row{display:flex;gap:10px;flex-wrap:wrap}
-.btn{padding:12px 14px;border-radius:12px;border:none;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.4);font-size:16px}
+.btn{padding:12px 14px;border-radius:12px;border:none;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.4);font-size:16px;transition:transform .18s ease, box-shadow .18s ease}
 .btn.primary{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#041225;font-weight:700}
 .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
 .error-text{color:#ff8b8b;margin-top:6px}
+
+/* Register button animation class */
+.register-btn.animate {
+  animation: registerPulse 700ms ease;
+}
+@keyframes registerPulse {
+  0% { transform: scale(1) rotate(0deg); box-shadow:0 6px 18px rgba(0,0,0,0.4); }
+  40% { transform: scale(1.06) rotate(-2deg); box-shadow:0 14px 30px rgba(106,168,255,0.18); }
+  70% { transform: scale(0.99) rotate(1deg); }
+  100% { transform: scale(1) rotate(0deg); box-shadow:0 6px 18px rgba(0,0,0,0.4); }
+}
 
 /* App layout */
 .hidden{display:none}
