@@ -11,60 +11,59 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- Top strip glow -->
-  <div class="strip-light"></div>
+  <div class="strip-light" aria-hidden="true"></div>
 
-  <!-- App wrapper -->
   <div id="app" class="app">
 
-    <!-- LOGIN / AUTH card -->
+    <!-- LOGIN PAGE -->
     <div id="page-login" class="page center">
-      <div class="auth-card glass-card">
+      <div class="auth-card glass-card" role="region" aria-label="Authentication">
         <h1 class="brand">Video Tracker</h1>
         <p class="muted">Sign in to manage uploads and analytics</p>
 
-        <input id="email" type="email" placeholder="Email" />
-        <input id="password" type="password" placeholder="Password" />
+        <input id="email" type="email" placeholder="Email" autocomplete="username" />
+        <input id="password" type="password" placeholder="Password" autocomplete="current-password" />
         <div class="row">
-          <button id="authButton" class="btn primary" onclick="login()">Login</button>
-          <button id="switchBtn" class="btn ghost" onclick="toggleAuthMode()">Create</button>
+          <button id="authButton" class="btn primary" onclick="window.login()">Login</button>
+          <button id="switchBtn" class="btn ghost" onclick="window.toggleAuthMode()">Create</button>
         </div>
-        <p id="loginError" class="error-text"></p>
+        <p id="loginError" class="error-text" role="alert" aria-live="polite"></p>
+
         <p class="muted small">Or continue as guest (read-only)</p>
         <div class="row">
-          <button class="btn secondary" onclick="guestView()">Continue as Guest</button>
+          <button class="btn secondary" onclick="window.guestView()">Continue as Guest</button>
         </div>
       </div>
     </div>
 
     <!-- APP SHELL -->
-    <div id="page-app" class="page hidden">
-      <aside class="sidebar glass-card float-left">
+    <div id="page-app" class="page hidden" aria-hidden="true">
+      <aside class="sidebar glass-card float-left" role="navigation" aria-label="Sidebar">
         <div class="logo">VT</div>
         <nav>
-          <a href="#dashboard" class="navlink" data-route>Dashboard</a>
-          <a href="#uploads" class="navlink" data-route>Uploads</a>
-          <a href="#contact" class="navlink" data-route>Contact</a>
+          <a href="#dashboard" class="navlink" data-route onclick="location.hash='dashboard'">Dashboard</a>
+          <a href="#uploads" class="navlink" data-route onclick="location.hash='uploads'">Uploads</a>
+          <a href="#contact" class="navlink" data-route onclick="location.hash='contact'">Contact</a>
         </nav>
 
-        <div class="profile glass-card small">
+        <div class="profile glass-card small" style="margin-top:auto">
           <div class="avatar">A</div>
           <div class="meta">
             <div id="profileName">Asmit Kamble</div>
             <div id="profileEmail" class="muted small">ashkamble149@gmail.com</div>
           </div>
-          <button class="btn tiny logout-btn" onclick="logout()">Logout</button>
+          <button id="logoutBtn" class="btn tiny logout-btn" onclick="window.logout()">Logout</button>
         </div>
 
         <div class="copyright muted small">© Video Tracker</div>
       </aside>
 
-      <main class="main">
-        <!-- ROUTED VIEWS -->
+      <main class="main" role="main">
+        <!-- Dashboard view -->
         <section id="view-dashboard" class="view">
           <header class="main-head glass-card">
             <h2>Overview</h2>
-            <div id="clock" class="clock muted"></div>
+            <div id="clock" class="clock muted" aria-live="polite"></div>
           </header>
 
           <div class="grid">
@@ -72,10 +71,12 @@
               <div class="stat-title">Total Uploads</div>
               <div id="totalUploadsBig" class="stat-value">0</div>
             </div>
+
             <div class="card stat glass-card">
               <div class="stat-title">Platforms</div>
               <div class="stat-value">YouTube · Instagram · Facebook</div>
             </div>
+
             <div class="card stat glass-card">
               <div class="stat-title">Top Video</div>
               <div class="stat-value" id="topVideo">—</div>
@@ -83,12 +84,12 @@
 
             <div class="card large glass-card">
               <div class="card-head">Uploads Over Time</div>
-              <canvas id="lineChart"></canvas>
+              <canvas id="lineChart" aria-label="Uploads over time chart"></canvas>
             </div>
 
             <div class="card medium glass-card">
               <div class="card-head">Platform Distribution</div>
-              <canvas id="pieChart"></canvas>
+              <canvas id="pieChart" aria-label="Platform distribution chart"></canvas>
             </div>
 
             <div class="card table-card glass-card">
@@ -103,14 +104,15 @@
           </div>
         </section>
 
+        <!-- Uploads page -->
         <section id="view-uploads" class="view hidden">
           <div class="panel glass-card">
             <h3>Add Upload</h3>
             <div class="row wrap">
               <input type="date" id="u_date" />
-              <select id="u_platform"><option value="">Platform</option><option>Youtube</option><option>Instagram</option><option>Facebook</option></select>
+              <select id="u_platform"><option value="">Platform</option><option>YouTube</option><option>Instagram</option><option>Facebook</option></select>
               <input id="u_title" placeholder="Video title" />
-              <button class="btn primary" onclick="addUpload()">Save</button>
+              <button class="btn primary" onclick="window.addUpload()">Save</button>
             </div>
           </div>
 
@@ -122,19 +124,20 @@
           </div>
         </section>
 
+        <!-- Contact page -->
         <section id="view-contact" class="view hidden">
           <div class="panel glass-card">
             <h3>Contact Us</h3>
             <p class="muted">For support email:</p>
             <p><strong>ashkamble149@gmail.com</strong></p>
 
-            <form id="contactForm" onsubmit="sendContact(event)">
+            <form id="contactForm" onsubmit="window.sendContact(event)">
               <input id="c_name" placeholder="Your name" value="Asmit Kamble" />
               <input id="c_email" type="email" placeholder="Your email" value="ashkamble149@gmail.com" />
               <textarea id="c_message" placeholder="Message"></textarea>
               <div class="row">
                 <button class="btn primary" type="submit">Send</button>
-                <button class="btn ghost" type="button" onclick="resetContact()">Reset</button>
+                <button class="btn ghost" type="button" onclick="window.resetContact()">Reset</button>
               </div>
             </form>
           </div>
@@ -143,6 +146,7 @@
     </div>
   </div>
 
+  <!-- Application script (module) -->
   <script type="module" src="script.js"></script>
 </body>
 </html>
