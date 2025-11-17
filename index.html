@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Video Tracker</title>
 
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Firebase compat SDKs -->
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore-compat.js"></script>
@@ -38,9 +41,6 @@
 
   <!-- APP VIEW -->
   <div id="appView" class="hidden">
-
-    <!-- MOBILE TOPBAR (visible on small screens) -->
-    <!-- NOTE: aria-hidden removed so it's purely controlled by CSS/JS -->
     <div class="mobile-topbar" id="mobileTopbar">
       <div class="mobile-vt">
         <div class="mobile-avatar" id="mobileAvatarLetter">A</div>
@@ -74,7 +74,6 @@
       </aside>
 
       <main class="main" id="mainContent">
-        <!-- Dashboard -->
         <section id="section-dashboard" class="card header">
           <div style="display:flex;flex-direction:column;gap:10px">
             <div style="display:flex;align-items:center;justify-content:space-between">
@@ -108,7 +107,6 @@
           </div>
         </section>
 
-        <!-- Uploads -->
         <section id="section-uploads" class="hidden" style="margin-top:14px">
           <div class="card">
             <h3>Add Upload (3 titles)</h3>
@@ -133,7 +131,6 @@
           </div>
         </section>
 
-        <!-- Contact -->
         <section id="section-contact" class="hidden" style="margin-top:14px">
           <div class="card">
             <h3>Contact Us</h3>
