@@ -1,4 +1,4 @@
-// script.js (module) - email/password auth only (Google/Facebook removed)
+// script.js (module) - email/password only; clear error messages + mobile-ready UI
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
 import {
@@ -57,29 +57,49 @@ let lineChart = null, pieChart = null;
 })();
 
 // ---------- AUTH (email only) ----------
+// helper to set message nicely
+function setAuthMessage(msg, isError = true){
+  const el = $('authMessage');
+  if (!el) return;
+  el.textContent = msg || '';
+  el.style.color = isError ? '#ff8b8b' : '#9ef2b8';
+}
+
+// improved sign-in with friendly messages
 window.emailSign = async function(){
+  setAuthMessage('');
   const email = ($('email')?.value || '').trim();
   const pass = ($('password')?.value || '');
-  if (!email || !pass) { $('authMessage') && ($('authMessage').textContent = 'Enter email and password'); return; }
+  if (!email || !pass) { setAuthMessage('Please enter both email and password.'); return; }
   try {
     await signInWithEmailAndPassword(auth, email, pass);
-    $('authMessage') && ($('authMessage').textContent = '');
+    setAuthMessage('', false);
   } catch (err) {
     console.error('signin error', err);
-    $('authMessage') && ($('authMessage').textContent = err.message || 'Sign-in failed');
+    // show friendly messages based on firebase error code
+    const code = err.code || '';
+    if (code === 'auth/wrong-password') setAuthMessage('Wrong password. Please try again.');
+    else if (code === 'auth/user-not-found' || code === 'auth/invalid-email' || code === 'auth/user-disabled') setAuthMessage('Invalid credentials. Please check your email or register first.');
+    else if (code === 'auth/too-many-requests') setAuthMessage('Too many failed attempts. Try again later.');
+    else setAuthMessage(err.message || 'Sign-in failed. Please check credentials.');
   }
 };
 
 window.registerEmail = async function(){
+  setAuthMessage('');
   const email = ($('email')?.value || '').trim();
   const pass = ($('password')?.value || '');
-  if (!email || !pass) { $('authMessage') && ($('authMessage').textContent = 'Enter email and password to register'); return; }
+  if (!email || !pass) { setAuthMessage('Please enter both email and password to register.'); return; }
   try {
     await createUserWithEmailAndPassword(auth, email, pass);
-    $('authMessage') && ($('authMessage').textContent = '';
+    setAuthMessage('Registered successfully — you are signed in.', false);
   } catch (err) {
     console.error('register error', err);
-    $('authMessage') && ($('authMessage').textContent = err.message || 'Registration failed');
+    const code = err.code || '';
+    if (code === 'auth/email-already-in-use') setAuthMessage('This email is already registered. Try signing in.');
+    else if (code === 'auth/invalid-email') setAuthMessage('Invalid email address.');
+    else if (code === 'auth/weak-password') setAuthMessage('Password too weak (min 6 characters).');
+    else setAuthMessage(err.message || 'Registration failed.');
   }
 };
 
@@ -147,7 +167,7 @@ async function loadUploads(){
     if (list) {
       rows.forEach(r => {
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${r.date||''}</td><td>${r.platform||''}</td><td>${escapeHtml(r.title1||'')}</td><td>${escapeHtml(r.title2||'')}</td><td>${escapeHtml(r.title3||'')}</td>
+        tr.innerHTML = `<td>${r.date||''}</td><td>${r.platform||''}</td><td>${escapeHtml(r.title1||'')}</td><td>${escapeHtml(r.title2||'')}</td><td>${escapeHtml(r.title3||')}</td>
           <td><button class="delete-btn" onclick="deleteUpload('${r.id}')">Delete</button></td>`;
         list.appendChild(tr);
       });
