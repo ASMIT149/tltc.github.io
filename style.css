@@ -1,122 +1,61 @@
-/* Dark liquid glass dashboard - Video Tracker theme */
-
-/* Colors */
 :root{
   --bg-1:#060615;
   --accent1:#6aa8ff;
   --accent2:#c57bff;
-  --glass: rgba(255,255,255,0.06);
   --muted: rgba(255,255,255,0.72);
 }
 
-/* Base */
+/* Reset & background */
 *{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:Inter, "Segoe UI", system-ui, -apple-system, Arial;
-  color:#fff;
-  min-height:100vh;
+body{margin:0;font-family:Inter, "Segoe UI", system-ui, -apple-system, Arial;color:#fff;
   background:
     radial-gradient(800px 400px at 10% 20%, rgba(122,168,255,0.06), transparent),
     radial-gradient(900px 400px at 90% 80%, rgba(197,123,255,0.04), transparent),
     linear-gradient(180deg,#06060a,#0b0b12);
+  min-height:100vh;
 }
 
-/* Top glow */
-.strip-light{
-  position:fixed;left:0;right:0;top:0;height:6px;
-  background:linear-gradient(90deg,var(--accent1),var(--accent2));
-  filter:blur(10px);z-index:50;
-}
+.strip-light{position:fixed;left:0;right:0;top:0;height:6px;background:linear-gradient(90deg,var(--accent1),var(--accent2));filter:blur(10px);z-index:50}
 
-/* App wrapper */
-.app{display:flex;flex-direction:column;padding:36px}
-
-/* Pages */
-.page{display:flex;align-items:center;justify-content:center}
-.center{min-height:70vh}
-
-/* Glass card */
-.glass-card{
-  background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-  border-radius:16px;padding:18px;border:1px solid rgba(255,255,255,0.06);
-  backdrop-filter:blur(14px) saturate(120%);box-shadow:0 10px 30px rgba(2,4,10,0.6);
-}
-
-/* Auth */
-.auth-card{width:420px;text-align:center}
-.brand{
-  font-size:28px;margin:0 0 6px;
-  background:linear-gradient(90deg,var(--accent1),var(--accent2));
-  -webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800;
-}
+/* Auth screen */
+.auth-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:36px}
+.auth-card{width:420px;text-align:center;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:16px;padding:24px;border:1px solid rgba(255,255,255,0.06);backdrop-filter:blur(14px) saturate(120%);box-shadow:0 10px 30px rgba(2,4,10,0.6)}
+.brand{font-size:28px;margin:0 0 6px;background:linear-gradient(90deg,var(--accent1),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800}
 .muted{color:var(--muted)}
-.small{font-size:13px}
-input,textarea,select{
-  width:100%;padding:10px;border-radius:10px;border:none;background:rgba(255,255,255,0.03);
-  color:#fff;margin:8px 0;outline:none;
-}
-textarea{min-height:120px;resize:vertical}
+input,select,textarea{width:100%;padding:10px;border-radius:10px;border:none;background:rgba(255,255,255,0.03);color:#fff;margin:8px 0;outline:none}
 .row{display:flex;gap:10px;align-items:center}
 .row.wrap{flex-wrap:wrap}
 .btn{padding:10px 12px;border-radius:10px;border:none;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,0.4)}
 .btn.primary{background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#041225;font-weight:700}
-.btn.secondary{background:rgba(255,255,255,0.03);color:#fff}
 .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
-.btn.tiny{padding:6px 8px;font-size:13px}
-.error-text{color:#ff8b8b;margin-top:8px}
+.btn.oauth{padding:8px 10px;border-radius:10px;background:rgba(255,255,255,0.03)}
 
-/* Layout */
-.page.hidden{display:none}
-#page-app{display:flex}
-.sidebar{
-  width:220px;padding:22px;display:flex;flex-direction:column;gap:18px;min-height:640px;border-radius:16px;
-}
-.logo{
-  font-weight:800;background:linear-gradient(90deg,var(--accent1),var(--accent2));
-  -webkit-background-clip:text;background-clip:text;color:transparent;font-size:20px;
-}
+/* App shell */
+.hidden{display:none}
+.app{display:flex;min-height:100vh;padding:36px}
+.sidebar{width:220px;padding:22px;display:flex;flex-direction:column;gap:18px;border-radius:16px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));border:1px solid rgba(255,255,255,0.04);backdrop-filter:blur(10px)}
+.logo{font-weight:800;background:linear-gradient(90deg,var(--accent1),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent;font-size:20px}
 nav{display:flex;flex-direction:column;gap:6px;margin-top:6px}
 .navlink{display:block;padding:10px;border-radius:10px;color:var(--muted);text-decoration:none}
 .navlink:hover{background:rgba(255,255,255,0.02);color:#fff}
 .profile{display:flex;gap:12px;align-items:center}
 .avatar{width:44px;height:44px;border-radius:10px;background:linear-gradient(90deg,var(--accent2),var(--accent1));display:grid;place-items:center;font-weight:700}
-.meta{flex:1}
 
-/* Main area */
+/* Main */
 .main{flex:1;padding-left:28px;padding-right:28px}
 .main-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;padding:16px}
-.clock{font-weight:700}
-
-/* Grid */
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
 .card{padding:14px;border-radius:12px}
-.card.stat{min-height:80px}
 .card.large{grid-column:span 2;min-height:260px}
-.card.medium{min-height:200px}
 .card.table-card{grid-column:span 3}
-
-/* Card heads & stats */
-.card-head{font-weight:700;margin-bottom:8px}
-.stat-title{font-size:13px;color:var(--muted)}
-.stat-value{font-size:28px;font-weight:800;margin-top:6px}
-
-/* Table */
 .table-wrap{overflow:auto;border-radius:10px;padding:6px;background:rgba(255,255,255,0.01)}
 table{width:100%;border-collapse:collapse;color:rgba(255,255,255,0.9)}
 th,td{padding:10px;border-bottom:1px solid rgba(255,255,255,0.03);text-align:left}
 .delete-btn{background:transparent;border:none;color:#ff8b8b;cursor:pointer}
 
-/* Responsive */
+/* responsive */
 @media (max-width:1000px){
   .grid{grid-template-columns:1fr}
   .sidebar{display:none}
   .main{padding:12px}
 }
-
-/* subtle float */
-.float-left{animation:floatL 6s ease-in-out infinite}
-@keyframes floatL{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
-
-/* focus */
-input:focus,textarea:focus,select:focus{box-shadow:0 8px 30px rgba(100,100,255,0.06);border-radius:12px}
