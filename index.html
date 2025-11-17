@@ -27,16 +27,8 @@
         <button class="btn ghost" onclick="registerEmail()">Register</button>
       </div>
 
-      <div style="margin:14px 0;text-align:center">
-        <div class="or">OR</div>
-        <div style="display:flex;gap:10px;justify-content:center;margin-top:10px">
-          <button class="btn oauth" onclick="googleSign()">Sign in with Google</button>
-          <button class="btn oauth" onclick="facebookSign()">Sign in with Facebook</button>
-        </div>
-      </div>
-
       <p id="authMessage" class="error-text" role="alert" aria-live="polite"></p>
-      <p class="muted small">Tip: Enable Google/Facebook in Firebase Auth and add your site domain under Authorized domains.</p>
+      <p class="muted small">Tip: Add your site domain under Firebase Auth → Authorized domains if you use hosted auth features.</p>
     </div>
   </main>
 
