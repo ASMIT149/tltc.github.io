@@ -1,4 +1,5 @@
-// Same auth / firestore logic but with mobile-topbar JS fallback for visibility
+// script.js - upgraded error handling + mobile reliability tweaks
+// Replace existing script.js with this file and keep your index.html and style.css as before.
 
 const firebaseConfig = {
   apiKey: "AIzaSyCcd1CCTlJRZ2YOhbziRVdiZlvVzUHiYm4",
@@ -9,6 +10,7 @@ const firebaseConfig = {
   appId: "1:6567580876:web:e982351a06897faea45e69",
   measurementId: "G-554K9DJVCJ"
 };
+
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
@@ -17,45 +19,67 @@ const $ = id => document.getElementById(id);
 const setAuthMessage = (msg, isError = true) => {
   if ($('authMessage')) $('authMessage').textContent = isError ? msg : '';
   if ($('authSuccess')) $('authSuccess').textContent = isError ? '' : msg;
+  // also console.log for debugging
+  if (isError) console.warn('AUTH MSG:', msg); else console.info('AUTH OK:', msg);
 };
 
 function setButtonsDisabled(disabled){
   const emailBtn = $('emailBtn'), regBtn = $('regBtn');
   if (emailBtn) emailBtn.disabled = disabled;
   if (regBtn) regBtn.disabled = disabled;
-  if (regBtn) {
-    if (disabled) regBtn.classList.add('disabled'); else regBtn.classList.remove('disabled');
+}
+
+// Persist auth state - good for mobile browsers
+(async function setPersistence(){
+  try {
+    // try local persistence (most durable)
+    await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+    console.info('Auth persistence set: LOCAL');
+  } catch (err) {
+    console.warn('Could not set LOCAL persistence, falling back to default. Error:', err);
   }
+})();
+
+// small helper to normalize common firebase errors to friendly messages
+function friendlyAuthError(err){
+  if (!err) return 'Unknown error';
+  const code = err.code || '';
+  if (code === 'auth/wrong-password') return 'Wrong password — check and try again.';
+  if (code === 'auth/user-not-found') return 'No account found for this email. Please register first.';
+  if (code === 'auth/invalid-email') return 'Invalid email address.';
+  if (code === 'auth/email-already-in-use') return 'Email already registered — try signing in.';
+  if (code === 'auth/weak-password') return 'Password too weak. Use at least 6 characters.';
+  if (code === 'auth/unauthorized-domain') return 'Site not authorized in Firebase Auth. Add your domain in Firebase Console → Authentication → Authorized domains.';
+  if (code === 'auth/network-request-failed') return 'Network issue. Check connection or try again.';
+  if (code === 'auth/too-many-requests') return 'Too many attempts. Try again later.';
+  // fallback to message
+  return err.message || code || 'Authentication failed';
 }
 
-function animateRegister(){
-  const reg = $('regBtn');
-  if (!reg) return;
-  reg.classList.remove('animate');
-  void reg.offsetWidth;
-  reg.classList.add('animate');
-  reg.addEventListener('animationend', ()=> reg.classList.remove('animate'), { once: true });
-}
-
-(function startClock(){ const c = $('clock'); if (!c) return; function t(){ c.textContent = new Date().toLocaleTimeString(); } t(); setInterval(t,1000); })();
-
+// improved sign-in function
 async function emailSign(){
   setAuthMessage('');
   const email = ($('email')?.value || '').trim();
   const pass = ($('password')?.value || '');
   if (!email || !pass) { setAuthMessage('Please enter both email and password.'); return; }
+
   setButtonsDisabled(true);
-  try { await auth.signInWithEmailAndPassword(email, pass); }
-  catch (err) {
-    console.error('signin error', err);
-    const code = err.code || '';
-    if (code === 'auth/wrong-password') setAuthMessage('Wrong password. Please try again.');
-    else if (code === 'auth/user-not-found' || code === 'auth/invalid-email' || code === 'auth/user-disabled') setAuthMessage('Invalid credentials. Please check your email or register first.');
-    else if (code === 'auth/too-many-requests') setAuthMessage('Too many failed attempts. Try again later.');
-    else setAuthMessage(err.message || 'Sign-in failed. Please check credentials.');
-  } finally { setButtonsDisabled(false); }
+  try {
+    console.info('Attempting signInWithEmailAndPassword for', email);
+    await auth.signInWithEmailAndPassword(email, pass);
+    setAuthMessage('Signed in', false);
+  } catch (err) {
+    console.error('Sign-in error:', err);
+    const msg = friendlyAuthError(err);
+    setAuthMessage(msg);
+    // show lower-level code in console for debugging
+    console.debug('Full auth error object:', err);
+  } finally {
+    setButtonsDisabled(false);
+  }
 }
 
+// improved register function
 async function registerEmail(){
   setAuthMessage('');
   const email = ($('email')?.value || '').trim();
@@ -63,39 +87,52 @@ async function registerEmail(){
   if (!email || !pass) { setAuthMessage('Please enter both email and password to register.'); return; }
   if (pass.length < 6) { setAuthMessage('Password must be at least 6 characters.'); return; }
 
-  animateRegister();
   setButtonsDisabled(true);
-  try { await auth.createUserWithEmailAndPassword(email, pass); setAuthMessage('Registered and signed in.', false); }
-  catch (err) {
-    console.error('register error', err);
-    const code = err.code || '';
-    if (code === 'auth/email-already-in-use') setAuthMessage('This email is already registered. Try signing in.');
-    else if (code === 'auth/invalid-email') setAuthMessage('Invalid email address.');
-    else if (code === 'auth/weak-password') setAuthMessage('Password too weak (min 6 characters).');
-    else setAuthMessage(err.message || 'Registration failed.');
-  } finally { setButtonsDisabled(false); }
+  try {
+    console.info('Attempting createUserWithEmailAndPassword for', email);
+    await auth.createUserWithEmailAndPassword(email, pass);
+    setAuthMessage('Registered and signed in', false);
+  } catch (err) {
+    console.error('Register error:', err);
+    const msg = friendlyAuthError(err);
+    setAuthMessage(msg);
+    console.debug('Full auth error object:', err);
+  } finally {
+    setButtonsDisabled(false);
+  }
 }
 
-auth.onAuthStateChanged(user => {
+// sign out
+function signOutUser(){ auth.signOut().catch(e => console.warn('signOut failed', e)); }
+
+// auth state observer
+auth.onAuthStateChanged(async user => {
+  console.info('onAuthStateChanged -> user:', user ? user.email : null);
   if (user) {
     if ($('loginView')) $('loginView').classList.add('hidden');
     if ($('appView')) $('appView').classList.remove('hidden');
 
+    // fill profile fields (desktop + mobile)
     const displayName = user.displayName || 'Asmit Kamble';
     const email = user.email || '';
-
     if ($('profileEmail')) $('profileEmail').textContent = email;
     if ($('profileName')) $('profileName').textContent = displayName;
-    if ($('avatarLetter')) $('avatarLetter').textContent = (displayName || email || 'A')[0].toUpperCase();
+    if ($('avatarLetter')) $('avatarLetter').textContent = (displayName || email)[0]?.toUpperCase() || 'A';
 
     if ($('mobileProfileEmail')) $('mobileProfileEmail').textContent = email;
     if ($('mobileProfileName')) $('mobileProfileName').textContent = displayName;
-    if ($('mobileAvatarLetter')) $('mobileAvatarLetter').textContent = (displayName || email || 'A')[0].toUpperCase();
+    if ($('mobileAvatarLetter')) $('mobileAvatarLetter').textContent = (displayName || email)[0]?.toUpperCase() || 'A';
 
-    // ensure mobile topbar is visible when small
-    try { if (window.matchMedia && window.matchMedia('(max-width:900px)').matches) { const mt = $('mobileTopbar'); if (mt) mt.style.display = 'flex'; } } catch(e) {}
+    // ensure mobile bar visible when small screens
+    try {
+      if (window.matchMedia && window.matchMedia('(max-width:900px)').matches){
+        const mt = $('mobileTopbar'); if (mt) mt.style.display = 'flex';
+      } else {
+        const mt = $('mobileTopbar'); if (mt) mt.style.display = '';
+      }
+    } catch(e){ console.warn('matchMedia fallback error', e); }
 
-    loadUploads().catch(e => console.error(e));
+    await loadUploads().catch(e => { console.error('loadUploads failed in auth observer', e); });
     showSection('dashboard');
   } else {
     if ($('loginView')) $('loginView').classList.remove('hidden');
@@ -103,18 +140,8 @@ auth.onAuthStateChanged(user => {
   }
 });
 
-window.addEventListener('resize', () => {
-  // when viewport size changes, let CSS control display; this ensures fallback if needed
-  const mt = $('mobileTopbar');
-  if (!mt) return;
-  if (window.matchMedia && window.matchMedia('(max-width:900px)').matches) mt.style.display = 'flex';
-  else mt.style.display = '';
-});
+/* firestore & UI functions (same behavior as before) */
 
-function signOutUser(){ auth.signOut().catch(e=>console.warn('signout failed', e)); }
-function showSection(name){ const ids = ['section-dashboard','section-uploads','section-contact']; ids.forEach(id => { const el = $(id); if(!el) return; if (id === 'section-' + name) el.classList.remove('hidden'); else el.classList.add('hidden'); }); }
-
-/* Firestore functions (same as before) */
 async function loadUploads(){
   const tableTbody = document.querySelector('#uploadTable tbody');
   const listTbody = document.querySelector('#uploadList tbody');
@@ -126,18 +153,17 @@ async function loadUploads(){
 
   try {
     const snap = await db.collection('uploads').orderBy('createdAt','desc').get();
-    const rows = [];
-    const stats = {};
+    const rows = []; const stats = {};
     snap.forEach(docSnap => { const d = docSnap.data(); rows.push({ id: docSnap.id, ...d }); stats[d.platform] = (stats[d.platform] || 0) + 1; });
 
-    rows.slice(0,12).forEach(r => {
-      if (tableTbody) {
+    if (tableTbody) {
+      rows.slice(0,12).forEach(r => {
         const tr = document.createElement('tr');
         tr.innerHTML = `<td>${r.date||''}</td><td>${r.platform||''}</td><td>${escapeHtml(r.title1||'')}</td><td>${escapeHtml(r.title2||'')}</td><td>${escapeHtml(r.title3||'')}</td>
           <td><button class="delete-btn" onclick="deleteUpload('${r.id}')">Delete</button></td>`;
         tableTbody.appendChild(tr);
-      }
-    });
+      });
+    }
 
     if (listTbody) {
       rows.forEach(r => {
@@ -155,6 +181,7 @@ async function loadUploads(){
     updateCharts([], {});
   }
 }
+
 async function addUpload(){
   const user = auth.currentUser;
   if (!user) return alert('Please sign in to add uploads.');
@@ -177,12 +204,14 @@ async function addUpload(){
     alert('Save failed: ' + (err.message || err));
   }
 }
+
 async function deleteUpload(id){
   if (!confirm('Delete this upload?')) return;
-  try { await db.collection('uploads').doc(id).delete(); await loadUploads(); } catch (err) { console.error('delete error', err); alert('Delete failed: ' + (err.message || err)); }
+  try { await db.collection('uploads').doc(id).delete(); await loadUploads(); }
+  catch (err) { console.error('delete error', err); alert('Delete failed: ' + (err.message || err)); }
 }
 
-/* Charts */
+/* Charts code (same as before) */
 let lineChart = null, pieChart = null;
 function updateCharts(rows, stats){
   const byDate = {};
@@ -208,22 +237,19 @@ function updateCharts(rows, stats){
   }
 }
 
-/* Contact */
+/* contact mailto */
 function sendContact(e){ e.preventDefault(); const name=($('c_name')?.value||'Anonymous'); const mail=($('c_email')?.value||''); const msg=($('c_message')?.value||''); const to='ashkamble149@gmail.com'; const subject=encodeURIComponent(`Website message from ${name}`); const body=encodeURIComponent(`From: ${name}\nEmail: ${mail}\n\n${msg}`); window.location.href=`mailto:${to}?subject=${subject}&body=${body}`; }
 function resetContact(){ if ($('contactForm')) $('contactForm').reset(); if ($('c_name')) $('c_name').value = 'Asmit Kamble'; }
 
 function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
-// expose for inline onclicks
+// expose functions
 window.emailSign = emailSign;
 window.registerEmail = registerEmail;
 window.signOutUser = signOutUser;
-window.showSection = showSection;
+window.showSection = (n) => { const ids=['section-dashboard','section-uploads','section-contact']; ids.forEach(id=>{ const el = document.getElementById(id); if(!el) return; if(id==='section-'+n) el.classList.remove('hidden'); else el.classList.add('hidden'); }); };
 window.loadUploads = loadUploads;
 window.addUpload = addUpload;
 window.deleteUpload = deleteUpload;
 window.sendContact = sendContact;
 window.resetContact = resetContact;
-
-// focus
-if ($('email')) $('email').focus();
