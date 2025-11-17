@@ -8,13 +8,18 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  <!-- Firebase compat SDKs (no module hassles) -->
+  <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore-compat.js"></script>
+
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="strip-light" aria-hidden="true"></div>
 
-  <!-- LOGIN CARD (shown initially) -->
-  <main id="loginView" class="center-screen">
+  <!-- LOGIN VIEW -->
+  <main id="loginView" class="center-screen" aria-live="polite">
     <div class="auth-card" role="region" aria-label="Login">
       <h1 class="brand">Video Tracker</h1>
       <p class="muted">Sign in to continue</p>
@@ -27,13 +32,15 @@
         <button class="btn ghost register-btn" id="regBtn" onclick="registerEmail()">Register</button>
       </div>
 
-      <p id="authMessage" class="error-text" role="alert" aria-live="polite"></p>
-      <p class="muted small">Tip: Use valid email and password (min 6 chars). If you see "Invalid credentials" — check email; "Wrong password" — check password.</p>
+      <div id="authMessage" class="error-text" role="status" aria-live="polite"></div>
+      <div id="authSuccess" class="success-text" aria-live="polite"></div>
+
+      <p class="muted small" style="margin-top:8px">Tip: Password must be at least 6 characters when registering.</p>
     </div>
   </main>
 
-  <!-- APP (hidden until authenticated) -->
-  <div id="appView" class="hidden">
+  <!-- APP VIEW -->
+  <div id="appView" class="hidden" aria-hidden="true">
     <div class="app-shell">
       <aside class="sidebar" id="sidebar">
         <div class="logo">VT</div>
@@ -47,60 +54,54 @@
           <div class="avatar" id="avatarLetter">A</div>
           <div class="meta">
             <div id="profileName">Asmit Kamble</div>
-            <div id="profileEmail" class="muted small">ashkamble149@gmail.com</div>
+            <div id="profileEmail" class="profile-email muted">ashkamble149@gmail.com</div>
           </div>
           <button class="btn ghost" onclick="signOutUser()">Logout</button>
         </div>
       </aside>
 
-      <main class="main">
+      <main class="main" id="mainContent">
         <!-- Dashboard -->
-        <section id="section-dashboard" class="section">
-          <header class="card header">
-            <h2>Overview</h2>
-            <div id="clock" class="muted"></div>
-          </header>
-
-          <div class="grid">
-            <div class="card stat">
-              <div class="muted">Total Uploads</div>
-              <div id="totalUploads" class="big">0</div>
+        <section id="section-dashboard" class="card header">
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <h2 style="margin:0">Overview</h2>
+              <div id="clock" class="muted"></div>
             </div>
 
-            <div class="card large">
-              <div class="muted">Uploads Over Time</div>
-              <canvas id="lineChart"></canvas>
-            </div>
+            <div class="grid" style="margin-top:12px">
+              <div class="card stat">
+                <div class="muted">Total Uploads</div>
+                <div id="totalUploads" class="big">0</div>
+              </div>
 
-            <div class="card medium">
-              <div class="muted">Platform Distribution</div>
-              <canvas id="pieChart"></canvas>
-            </div>
+              <div class="card large">
+                <div class="muted">Uploads Over Time</div>
+                <canvas id="lineChart"></canvas>
+              </div>
 
-            <div class="card table-card">
-              <div class="muted">Latest Uploads</div>
-              <div class="table-wrap">
-                <table id="uploadTable">
-                  <thead><tr><th>Date</th><th>Platform</th><th>Title 1</th><th>Title 2</th><th>Title 3</th><th>Action</th></tr></thead>
-                  <tbody></tbody>
-                </table>
+              <div class="card medium">
+                <div class="muted">Platform Distribution</div>
+                <canvas id="pieChart"></canvas>
+              </div>
+
+              <div class="card table-card" style="grid-column:1 / -1">
+                <div class="muted">Latest Uploads</div>
+                <div class="table-wrap">
+                  <table id="uploadTable"><thead><tr><th>Date</th><th>Platform</th><th>Title 1</th><th>Title 2</th><th>Title 3</th><th>Action</th></tr></thead><tbody></tbody></table>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
         <!-- Uploads -->
-        <section id="section-uploads" class="section hidden">
+        <section id="section-uploads" class="hidden" style="margin-top:14px">
           <div class="card">
             <h3>Add Upload (3 titles)</h3>
             <div class="form-col">
               <input type="date" id="u_date" />
-              <select id="u_platform">
-                <option value="">Select Platform</option>
-                <option>YouTube</option>
-                <option>Instagram</option>
-                <option>Facebook</option>
-              </select>
+              <select id="u_platform"><option value="">Select Platform</option><option>YouTube</option><option>Instagram</option><option>Facebook</option></select>
               <input id="u_title1" placeholder="Title 1 (required)" />
               <input id="u_title2" placeholder="Title 2 (optional)" />
               <input id="u_title3" placeholder="Title 3 (optional)" />
@@ -114,19 +115,16 @@
           <div class="card" style="margin-top:16px">
             <h3>Your Uploads</h3>
             <div class="table-wrap">
-              <table id="uploadList">
-                <thead><tr><th>Date</th><th>Platform</th><th>T1</th><th>T2</th><th>T3</th><th>Action</th></tr></thead>
-                <tbody></tbody>
-              </table>
+              <table id="uploadList"><thead><tr><th>Date</th><th>Platform</th><th>T1</th><th>T2</th><th>T3</th><th>Action</th></tr></thead><tbody></tbody></table>
             </div>
           </div>
         </section>
 
         <!-- Contact -->
-        <section id="section-contact" class="section hidden">
+        <section id="section-contact" class="hidden" style="margin-top:14px">
           <div class="card">
             <h3>Contact Us</h3>
-            <p class="muted">Message will open your email client addressed to <strong>ashkamble149@gmail.com</strong></p>
+            <p class="muted">Messages open your email client addressed to <strong>ashkamble149@gmail.com</strong></p>
             <form id="contactForm" onsubmit="sendContact(event)">
               <input id="c_name" placeholder="Your name" value="Asmit Kamble" />
               <input id="c_email" type="email" placeholder="Your email" inputmode="email" />
@@ -142,6 +140,6 @@
     </div>
   </div>
 
-  <script type="module" src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
