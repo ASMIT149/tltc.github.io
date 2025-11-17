@@ -1,4 +1,5 @@
-// config (same as before)
+// Same auth / firestore logic but with mobile-topbar JS fallback for visibility
+
 const firebaseConfig = {
   apiKey: "AIzaSyCcd1CCTlJRZ2YOhbziRVdiZlvVzUHiYm4",
   authDomain: "video-tracker-7f709.firebaseapp.com",
@@ -13,10 +14,9 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 const $ = id => document.getElementById(id);
-const elText = (id, txt) => { const e = $(id); if (e) e.textContent = txt; };
 const setAuthMessage = (msg, isError = true) => {
-  elText('authMessage', isError ? msg : '');
-  elText('authSuccess', isError ? '' : msg);
+  if ($('authMessage')) $('authMessage').textContent = isError ? msg : '';
+  if ($('authSuccess')) $('authSuccess').textContent = isError ? '' : msg;
 };
 
 function setButtonsDisabled(disabled){
@@ -24,8 +24,7 @@ function setButtonsDisabled(disabled){
   if (emailBtn) emailBtn.disabled = disabled;
   if (regBtn) regBtn.disabled = disabled;
   if (regBtn) {
-    if (disabled) regBtn.classList.add('disabled');
-    else regBtn.classList.remove('disabled');
+    if (disabled) regBtn.classList.add('disabled'); else regBtn.classList.remove('disabled');
   }
 }
 
@@ -38,7 +37,6 @@ function animateRegister(){
   reg.addEventListener('animationend', ()=> reg.classList.remove('animate'), { once: true });
 }
 
-// clock
 (function startClock(){ const c = $('clock'); if (!c) return; function t(){ c.textContent = new Date().toLocaleTimeString(); } t(); setInterval(t,1000); })();
 
 async function emailSign(){
@@ -80,22 +78,22 @@ async function registerEmail(){
 
 auth.onAuthStateChanged(user => {
   if (user) {
-    // show app
     if ($('loginView')) $('loginView').classList.add('hidden');
     if ($('appView')) $('appView').classList.remove('hidden');
 
     const displayName = user.displayName || 'Asmit Kamble';
     const email = user.email || '';
 
-    // desktop profile
     if ($('profileEmail')) $('profileEmail').textContent = email;
     if ($('profileName')) $('profileName').textContent = displayName;
     if ($('avatarLetter')) $('avatarLetter').textContent = (displayName || email || 'A')[0].toUpperCase();
 
-    // mobile profile (just fill — CSS controls visibility)
     if ($('mobileProfileEmail')) $('mobileProfileEmail').textContent = email;
     if ($('mobileProfileName')) $('mobileProfileName').textContent = displayName;
     if ($('mobileAvatarLetter')) $('mobileAvatarLetter').textContent = (displayName || email || 'A')[0].toUpperCase();
+
+    // ensure mobile topbar is visible when small
+    try { if (window.matchMedia && window.matchMedia('(max-width:900px)').matches) { const mt = $('mobileTopbar'); if (mt) mt.style.display = 'flex'; } } catch(e) {}
 
     loadUploads().catch(e => console.error(e));
     showSection('dashboard');
@@ -105,12 +103,16 @@ auth.onAuthStateChanged(user => {
   }
 });
 
-// IMPORTANT: do NOT rely on JS to show/hide mobileTopbar; CSS handles it via media query
+window.addEventListener('resize', () => {
+  // when viewport size changes, let CSS control display; this ensures fallback if needed
+  const mt = $('mobileTopbar');
+  if (!mt) return;
+  if (window.matchMedia && window.matchMedia('(max-width:900px)').matches) mt.style.display = 'flex';
+  else mt.style.display = '';
+});
+
 function signOutUser(){ auth.signOut().catch(e=>console.warn('signout failed', e)); }
-function showSection(name){
-  const list = ['section-dashboard','section-uploads','section-contact'];
-  list.forEach(id => { const el = $(id); if (!el) return; if (id === 'section-' + name) el.classList.remove('hidden'); else el.classList.add('hidden'); });
-}
+function showSection(name){ const ids = ['section-dashboard','section-uploads','section-contact']; ids.forEach(id => { const el = $(id); if(!el) return; if (id === 'section-' + name) el.classList.remove('hidden'); else el.classList.add('hidden'); }); }
 
 /* Firestore functions (same as before) */
 async function loadUploads(){
@@ -153,7 +155,6 @@ async function loadUploads(){
     updateCharts([], {});
   }
 }
-
 async function addUpload(){
   const user = auth.currentUser;
   if (!user) return alert('Please sign in to add uploads.');
@@ -176,7 +177,6 @@ async function addUpload(){
     alert('Save failed: ' + (err.message || err));
   }
 }
-
 async function deleteUpload(id){
   if (!confirm('Delete this upload?')) return;
   try { await db.collection('uploads').doc(id).delete(); await loadUploads(); } catch (err) { console.error('delete error', err); alert('Delete failed: ' + (err.message || err)); }
@@ -225,5 +225,5 @@ window.deleteUpload = deleteUpload;
 window.sendContact = sendContact;
 window.resetContact = resetContact;
 
-// put focus on email
+// focus
 if ($('email')) $('email').focus();
