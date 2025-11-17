@@ -1,23 +1,8 @@
-// script.js (module) - Firebase + UI wiring
+// script.js - Hash routing, Firebase auth + Firestore uploads, Chart.js wiring
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  sendPasswordResetEmail,
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  getDocs,
-  deleteDoc,
-  doc
-} from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-/* ---------- Firebase config (yours) ---------- */
 const firebaseConfig = {
   apiKey: "AIzaSyCcd1CCTlJRZ2YOhbziRVdiZlvVzUHiYm4",
   authDomain: "video-tracker-7f709.firebaseapp.com",
@@ -32,249 +17,200 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-/* ---------- Clock ---------- */
-function tick() {
-  const el = document.getElementById('clockDisplay') || document.getElementById('clock');
-  if (el) el.textContent = new Date().toLocaleTimeString();
+// UI elements
+const pages = {
+  login: document.getElementById('page-login'),
+  app: document.getElementById('page-app'),
+  dashboard: document.getElementById('view-dashboard'),
+  uploads: document.getElementById('view-uploads'),
+  contact: document.getElementById('view-contact')
+};
+const loginErr = document.getElementById('loginError');
+
+// Charts
+let lineChart = null, pieChart = null;
+
+// Clock
+function startClock(){
+  const el = document.getElementById('clock');
+  setInterval(()=>{ if(el) el.textContent = new Date().toLocaleTimeString(); },1000);
 }
-setInterval(tick, 1000);
-tick();
+startClock();
 
-/* ---------- Auth UI handlers (wired to HTML) ---------- */
+// Routing
+function showView(route){
+  // hide all
+  document.querySelectorAll('.view').forEach(v=>v.classList.add('hidden'));
+  // show matched
+  if(route === 'dashboard' || route === '') pages.dashboard.classList.remove('hidden');
+  else if(route === 'uploads') pages.uploads.classList.remove('hidden');
+  else if(route === 'contact') pages.contact.classList.remove('hidden');
+}
+function goHash(){
+  const h = location.hash.replace('#','');
+  if(h === 'login') { pages.login.classList.remove('hidden'); pages.app.classList.add('hidden'); }
+  else { pages.login.classList.add('hidden'); pages.app.classList.remove('hidden'); showView(h || 'dashboard'); }
+}
+window.addEventListener('hashchange', goHash);
+goHash();
+
+// Auth mode toggle
 let isLogin = true;
-
-window.toggleAuthMode = function () {
+window.toggleAuthMode = function(){
   isLogin = !isLogin;
-  const title = document.getElementById("formTitle");
-  const btn = document.getElementById("authButton");
-  const toggleText = document.getElementById("toggleText");
-  const err = document.getElementById("loginError");
-  err.textContent = "";
-  if (isLogin) {
-    title.innerText = "Sign In";
-    btn.innerText = "Login";
-    toggleText.innerText = "Sign Up";
-  } else {
-    title.innerText = "Sign Up";
-    btn.innerText = "Register";
-    toggleText.innerText = "Sign In";
-  }
+  document.getElementById('switchBtn').textContent = isLogin ? 'Create' : 'Back to Sign-in';
+  document.getElementById('authButton').textContent = isLogin ? 'Login' : 'Register';
 };
 
-window.login = async function () {
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-  const error = document.getElementById("loginError");
-  error.textContent = "";
-  if (!email || !password) {
-    error.textContent = "Enter email and password.";
-    return;
-  }
-
-  try {
-    if (isLogin) {
-      await signInWithEmailAndPassword(auth, email, password);
-    } else {
-      await createUserWithEmailAndPassword(auth, email, password);
-      // after register, optionally switch to login
-      isLogin = true;
-      toggleAuthMode();
-      alert("Account created. Please login.");
-    }
-  } catch (err) {
-    console.error(err);
-    error.textContent = "❌ " + (err.message || "Auth error");
-  }
+// login/register
+window.login = async function(){
+  loginErr.textContent = '';
+  const email = document.getElementById('email').value.trim();
+  const pass = document.getElementById('password').value;
+  if(!email || !pass){ loginErr.textContent = 'Enter email & password'; return; }
+  try{
+    if(isLogin) await signInWithEmailAndPassword(auth, email, pass);
+    else { await createUserWithEmailAndPassword(auth, email, pass); isLogin = true; toggleAuthMode(); alert('Account created. Please login.'); }
+  }catch(e){ loginErr.textContent = e.message; }
 };
 
-window.showReset = function () {
-  const email = document.getElementById("email").value.trim();
-  if (!email) return alert("Please enter your email to reset password.");
-  sendPasswordResetEmail(auth, email)
-    .then(() => alert("Password reset email sent."))
-    .catch(e => alert("Reset failed: " + e.message));
-};
+window.guestView = function(){ location.hash = '#dashboard'; pages.login.classList.add('hidden'); pages.app.classList.remove('hidden'); loadUploads(); };
 
-window.logout = function () {
-  signOut(auth).catch(e => console.warn("Sign out failed", e));
-};
-
-/* ---------- Auth state changes ---------- */
-onAuthStateChanged(auth, user => {
-  const authPage = document.getElementById('authPage');
-  const appPanel = document.getElementById('appPanel');
-  const userBadge = document.getElementById('userBadge');
-  const userEmail = document.getElementById('userEmail');
-  if (user) {
-    if (authPage) authPage.classList.add('hidden');
-    if (appPanel) appPanel.style.display = 'block';
-    if (userBadge) { userBadge.style.display = 'block'; userEmail.textContent = user.email || ''; }
+// auth state
+onAuthStateChanged(auth, user=>{
+  const profileName = document.getElementById('profileName');
+  const profileEmail = document.getElementById('profileEmail');
+  if(user){
+    pages.login.classList.add('hidden'); pages.app.classList.remove('hidden');
+    profileEmail.textContent = user.email || '—';
+    profileName.textContent = user.displayName || 'Asmit Kamble';
     loadUploads();
   } else {
-    if (authPage) authPage.classList.remove('hidden');
-    if (appPanel) appPanel.style.display = 'none';
-    if (userBadge) userBadge.style.display = 'none';
-    // keep charts cleared
-    updateChart({});
-    updatePie({});
+    // if user signs out, show login
+    if(location.hash === '' || location.hash === '#login'){ pages.login.classList.remove('hidden'); pages.app.classList.add('hidden'); }
+    profileEmail.textContent = 'ashkamble149@gmail.com';
+    profileName.textContent = 'Asmit Kamble';
+    // clear charts
+    updateCharts([], {});
   }
 });
 
-/* ---------- Firestore uploads ---------- */
-window.addUpload = async function () {
-  const date = document.getElementById("date").value;
-  const platform = document.getElementById("platform").value;
-  const title1 = document.getElementById("title1").value.trim();
-  const title2 = document.getElementById("title2").value.trim();
-  const title3 = document.getElementById("title3").value.trim();
-  if (!date || !platform || !title1) return alert("Please fill date, platform and Title 1.");
-  try {
-    await addDoc(collection(db, "uploads"), { date, platform, title1, title2, title3 });
-    document.getElementById("title1").value = "";
-    document.getElementById("title2").value = "";
-    document.getElementById("title3").value = "";
-    await loadUploads();
-  } catch (e) {
-    alert("Save failed: " + e.message);
-  }
-};
+// logout
+window.logout = function(){ signOut(auth).catch(e=>console.warn(e)); location.hash = '#login'; };
 
-window.deleteUpload = async function (id) {
-  if (!confirm("Delete this upload?")) return;
-  try {
-    await deleteDoc(doc(db, "uploads", id));
-    await loadUploads();
-  } catch (e) {
-    alert("Delete failed: " + e.message);
-  }
-};
-
-async function loadUploads() {
-  const tbody = document.querySelector("#uploadTable tbody");
-  if (!tbody) return;
-  tbody.innerHTML = "";
-  try {
-    const snapshot = await getDocs(collection(db, "uploads"));
+// Firestore: load uploads, render table and charts
+async function loadUploads(){
+  try{
+    const q = query(collection(db,'uploads'), orderBy('createdAt','desc'));
+    const snap = await getDocs(q);
+    const rows = [];
     const stats = {};
-    let total = 0;
-    snapshot.forEach(s => {
-      const e = s.data();
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${e.date || ''}</td>
-        <td>${e.platform || ''}</td>
-        <td>${escapeHtml(e.title1 || '')}</td>
-        <td>${escapeHtml(e.title2 || '')}</td>
-        <td>${escapeHtml(e.title3 || '')}</td>
-        <td><button class="delete-btn" onclick="deleteUpload('${s.id}')">🗑️</button></td>
-      `;
-      tbody.appendChild(tr);
-      stats[e.platform] = (stats[e.platform] || 0) + 1;
-      total++;
+    snap.forEach(s=>{
+      const d = s.data();
+      rows.push({ id: s.id, ...d });
+      stats[d.platform] = (stats[d.platform] || 0) + 1;
     });
-    document.getElementById("totalUploads").textContent = total;
-    updateChart(stats);
-    updatePie(stats);
-  } catch (e) {
-    console.error(e);
-    alert("Could not load uploads: " + e.message);
+    renderTable(rows);
+    updateCharts(rows, stats);
+    document.getElementById('totalUploadsBig').textContent = rows.length;
+  }catch(e){
+    console.error("load failed", e);
   }
 }
 
-/* ---------- CSV & PNG Export ---------- */
-window.downloadCSV = async function () {
-  try {
-    const snapshot = await getDocs(collection(db, "uploads"));
-    let csv = "Date,Platform,Title1,Title2,Title3\n";
-    snapshot.forEach(s => {
-      const e = s.data();
-      const escape = (v) => `"${String(v || "").replace(/"/g, '""')}"`;
-      csv += [e.date || "", e.platform || "", escape(e.title1), escape(e.title2), escape(e.title3)].join(",") + "\n";
+function renderTable(rows){
+  const tbody = document.querySelector('#uploadTable tbody');
+  tbody.innerHTML = '';
+  rows.slice(0,8).forEach(r=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${r.date||''}</td><td>${r.platform||''}</td><td>${escapeHtml(r.title1||r.title||'')}</td><td><button class="delete-btn" onclick="deleteUpload('${r.id}')">Delete</button></td>`;
+    tbody.appendChild(tr);
+  });
+
+  // uploads list table
+  const listT = document.querySelector('#uploadListTbl tbody');
+  if(listT){
+    listT.innerHTML = '';
+    rows.forEach(r=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${r.date||''}</td><td>${r.platform||''}</td><td>${escapeHtml(r.title1||r.title||'')}</td><td><button class="delete-btn" onclick="deleteUpload('${r.id}')">Delete</button></td>`;
+      listT.appendChild(tr);
     });
-    const blob = new Blob([csv], { type: "text/csv" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `uploads_${new Date().toISOString().slice(0,10)}.csv`;
-    link.click();
-  } catch (e) {
-    alert("Export failed: " + e.message);
+  }
+}
+
+// add upload (requires auth or guest will be blocked)
+window.addUpload = async function(){
+  const date = document.getElementById('u_date')?.value || '';
+  const platform = document.getElementById('u_platform')?.value || '';
+  const title = (document.getElementById('u_title')?.value || '').trim();
+  const user = auth.currentUser;
+  if(!date || !platform || !title) return alert('Fill date, platform, title');
+  if(!user) return alert('Please login to save uploads');
+
+  try{
+    await addDoc(collection(db,'uploads'), {
+      date, platform, title1: title, ownerUid: user.uid, createdAt: new Date().toISOString()
+    });
+    document.getElementById('u_title').value = '';
+    await loadUploads();
+  }catch(e){ alert('Save failed: '+(e.message||e)); }
+};
+
+// delete
+window.deleteUpload = async function(id){
+  if(!confirm('Delete this upload?')) return;
+  try{
+    await deleteDoc(doc(db,'uploads',id));
+    await loadUploads();
+  }catch(e){
+    alert('Delete failed: '+(e.message||e));
   }
 };
 
-window.downloadPNG = function () {
-  const canvas = document.getElementById("uploadChart");
-  if (!canvas) return alert("No chart to export.");
-  const link = document.createElement("a");
-  link.href = canvas.toDataURL("image/png");
-  link.download = `upload_chart_${new Date().toISOString().slice(0,10)}.png`;
-  link.click();
+// charts
+function updateCharts(rows, stats){
+  // line: uses createdAt counts per day (simple demo)
+  const labels = [];
+  const counts = [];
+  // build from rows by date
+  const byDate = {};
+  rows.forEach(r=>{
+    const d = r.date || (r.createdAt ? r.createdAt.slice(0,10) : '');
+    if(d) byDate[d] = (byDate[d]||0)+1;
+  });
+  Object.keys(byDate).sort().forEach(k=>{ labels.push(k); counts.push(byDate[k]); });
+
+  const lineCtx = document.getElementById('lineChart')?.getContext('2d');
+  if(lineChart) lineChart.destroy();
+  if(lineCtx){
+    lineChart = new Chart(lineCtx, { type:'line', data:{ labels, datasets:[{label:'Uploads', data:counts, tension:0.36, borderColor:'#9ad', backgroundColor:'rgba(100,170,255,0.12)', fill:true}] }, options:{ plugins:{legend:{display:false}} } });
+  }
+
+  const pieCtx = document.getElementById('pieChart')?.getContext('2d');
+  if(pieChart) pieChart.destroy();
+  if(pieCtx){
+    pieChart = new Chart(pieCtx, { type:'doughnut', data:{ labels:Object.keys(stats), datasets:[{data:Object.values(stats), backgroundColor:['#6aa8ff','#c57bff','#ffcc66']}] }, options:{ plugins:{legend:{position:'bottom', labels:{color:'#fff'}}} } });
+  }
+}
+
+// contact form (just mailto fallback)
+window.sendContact = function(e){
+  e.preventDefault();
+  const name = document.getElementById('c_name').value;
+  const email = document.getElementById('c_email').value;
+  const message = document.getElementById('c_message').value;
+  const to = 'ashkamble149@gmail.com';
+  const subject = encodeURIComponent('Contact from Website: '+name);
+  const body = encodeURIComponent(`From: ${name} <${email}>\n\n${message}`);
+  window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
 };
 
-/* ---------- Charts (Chart.js) ---------- */
-let barChart = null;
-let pieChart = null;
+window.resetContact = function(){ document.getElementById('contactForm').reset(); document.getElementById('c_name').value='Asmit Kamble'; document.getElementById('c_email').value='ashkamble149@gmail.com'; };
 
-function updateChart(data) {
-  const labels = Object.keys(data || {});
-  const values = labels.map(k => data[k] || 0);
-  const ctx = document.getElementById("uploadChart")?.getContext("2d");
-  if (!ctx) return;
-  if (barChart) barChart.destroy();
-  barChart = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [{
-        label: "Uploads",
-        data: values,
-        backgroundColor: "rgba(255,255,255,0.12)",
-        borderRadius: 8
-      }]
-    },
-    options: {
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { ticks: { color: "#fff" } },
-        y: { ticks: { color: "#fff", beginAtZero: true } }
-      }
-    }
-  });
-}
+// small util
+function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
-function updatePie(data) {
-  const labels = Object.keys(data || {});
-  const values = labels.map(k => data[k] || 0);
-  const ctx = document.getElementById("uploadPie")?.getContext("2d");
-  if (!ctx) return;
-  if (pieChart) pieChart.destroy();
-  pieChart = new Chart(ctx, {
-    type: "pie",
-    data: {
-      labels,
-      datasets: [{
-        data: values,
-        backgroundColor: ["#ffce56", "#36a2eb", "#ff6384"]
-      }]
-    },
-    options: {
-      plugins: { legend: { labels: { color: "#fff" } } }
-    }
-  });
-}
-
-/* ---------- UI helpers ---------- */
-window.toggleAppPanel = function () {
-  const panel = document.getElementById("appPanel");
-  if (!panel) return;
-  panel.style.display = (panel.style.display === "none" || panel.style.display === "") ? "block" : "none";
-};
-
-function escapeHtml(text) {
-  return String(text).replace(/[&<>"']/g, (m) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
-}
-
-/* ---------- Init: hide panel by default ---------- */
-document.getElementById("appPanel").style.display = "none";
-
-/* Expose a couple helpers for console/testing */
-window._updateCharts = () => { loadUploads(); };
+// initial load when page opens
+if(location.hash && location.hash !== '#login') goHash();
+loadUploads();
