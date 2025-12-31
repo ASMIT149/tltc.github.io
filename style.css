@@ -2,61 +2,66 @@
   margin:0;
   padding:0;
   box-sizing:border-box;
+  font-family:'Poppins', sans-serif;
 }
 
 body{
-  font-family:'Poppins', sans-serif;
   background:#111;
   color:#fff;
+  overflow:hidden;
 }
 
-.screen{
+/* SLIDES */
+.slide{
   min-height:100vh;
+  width:100%;
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:24px;
+  position:absolute;
+  top:0;
+  left:0;
+  opacity:0;
+  transform:translateX(40px);
+  transition:all 0.8s ease;
+  padding:20px;
 }
 
-.red{
-  background:linear-gradient(135deg,#8b0000,#ff4d4d);
+.slide.active{
+  opacity:1;
+  transform:translateX(0);
+  z-index:1;
 }
 
-.end{
-  background:#fff;
-}
-
+/* CARD */
 .card{
-  background:rgba(255,255,255,0.18);
-  padding:28px;
+  background:rgba(255,255,255,0.15);
+  padding:30px;
   border-radius:20px;
   max-width:420px;
   width:100%;
   text-align:center;
-  box-shadow:0 20px 40px rgba(0,0,0,.4);
-
-  /* IMPORTANT: visible by default */
-  opacity:1;
+  box-shadow:0 20px 40px rgba(0,0,0,0.4);
 }
 
-.title{
-  font-family:'Playfair Display', serif;
-  font-size:42px;
+h1{
+  font-size:38px;
 }
 
-.sub{
-  margin-top:8px;
+h2{
+  margin-bottom:15px;
 }
 
-.glow{
-  text-shadow:0 0 10px #fff,0 0 25px #ffb3b3;
+p{
+  margin-top:10px;
 }
 
+/* PHOTOS */
 .photos{
   display:grid;
   grid-template-columns:repeat(3,1fr);
   gap:10px;
-  margin-top:18px;
+  margin-top:15px;
 }
 
 .photos img{
@@ -66,27 +71,13 @@ body{
   border-radius:12px;
 }
 
-.heart{
-  font-size:80px;
-}
-
-.names{
-  font-family:'Great Vibes', cursive;
-  font-size:48px;
-}
-
-.cute{
-  font-size:22px;
-  margin:8px 0;
-}
-
-.msg{
+/* FINAL */
+.message{
+  line-height:1.7;
   text-align:left;
-  line-height:1.8;
 }
 
-.endText{
-  color:#8b0000;
-  font-size:52px;
-  text-align:center;
+.end{
+  margin-top:20px;
+  color:#ff4d4d;
 }
