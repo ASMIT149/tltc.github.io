@@ -1,4 +1,4 @@
-// Music on first click
+// Music on first interaction
 document.addEventListener("click", () => {
   const music = document.getElementById("bgMusic");
   if (music) {
@@ -7,7 +7,7 @@ document.addEventListener("click", () => {
   }
 }, { once: true });
 
-// Scroll animation
+// Card reveal animation
 const cards = document.querySelectorAll(".card");
 
 const observer = new IntersectionObserver(entries => {
@@ -16,6 +16,7 @@ const observer = new IntersectionObserver(entries => {
       entry.target.classList.add("show");
     }
   });
-}, { threshold: 0.3 });
+}, { threshold: 0.35 });
 
 cards.forEach(card => observer.observe(card));
+
