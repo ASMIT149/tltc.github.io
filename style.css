@@ -1,49 +1,40 @@
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:Arial, sans-serif;
-}
-
 body{
+  margin:0;
+  font-family:Arial, sans-serif;
   background:linear-gradient(135deg,#ff1a1a,#ffffff);
   overflow-x:hidden;
 }
 
-.section{
+.container{
+  width:100%;
+}
+
+.card-section{
   min-height:100vh;
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:30px;
 }
 
 .card{
   background:rgba(255,255,255,0.25);
-  backdrop-filter:blur(12px);
-  padding:25px;
-  border-radius:20px;
+  backdrop-filter:blur(14px);
+  padding:30px;
+  border-radius:22px;
+  width:90%;
   max-width:420px;
-  width:100%;
   text-align:center;
-  box-shadow:0 20px 40px rgba(0,0,0,0.2);
-}
-
-.intro{
-  background:linear-gradient(135deg,#ff4d4d,#ffffff);
-}
-
-.red{
-  background:linear-gradient(135deg,#c91818,#ffb3b3);
-}
-
-h1,h2,p{
   color:#fff;
+  box-shadow:0 20px 40px rgba(0,0,0,0.25);
+
+  opacity:0;
+  transform:translateY(40px);
+  transition:all 0.8s ease;
 }
 
-.subtitle{
-  margin-top:10px;
-  font-size:18px;
+.card.show{
+  opacity:1;
+  transform:translateY(0);
 }
 
 .photos{
@@ -62,39 +53,10 @@ h1,h2,p{
 
 .heart-big{
   font-size:90px;
-  animation:pulse 1.3s infinite;
-}
-
-.names-text{
-  font-size:40px;
-  letter-spacing:2px;
-  margin-top:10px;
-}
-
-.cute{
-  font-size:22px;
-  margin:10px 0;
-}
-
-.message{
-  font-size:16px;
-  line-height:1.7;
-  text-align:left;
-}
-
-.end{
-  background:linear-gradient(135deg,#ff1a1a,#ffffff);
 }
 
 .big{
   font-size:48px;
   color:#b30000;
-  font-weight:bold;
   text-align:center;
-}
-
-@keyframes pulse{
-  0%{transform:scale(1)}
-  50%{transform:scale(1.2)}
-  100%{transform:scale(1)}
 }
