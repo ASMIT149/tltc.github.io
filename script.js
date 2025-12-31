@@ -1,4 +1,4 @@
-// Play music on first user interaction (mobile safe)
+// Music on first click
 document.addEventListener("click", () => {
   const music = document.getElementById("bgMusic");
   if (music) {
@@ -7,4 +7,15 @@ document.addEventListener("click", () => {
   }
 }, { once: true });
 
-console.log("Asmit ❤️ Pari — site loaded successfully");
+// Scroll animation
+const cards = document.querySelectorAll(".card");
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("show");
+    }
+  });
+}, { threshold: 0.3 });
+
+cards.forEach(card => observer.observe(card));
