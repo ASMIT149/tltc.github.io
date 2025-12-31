@@ -1,155 +1,75 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Video Tracker</title>
+  <meta charset="UTF-8">
+  <title>For Pari ❤️</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-  <!-- Firebase compat SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore-compat.js"></script>
-
-  <link rel="stylesheet" href="style.css" />
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <div class="strip-light" aria-hidden="true"></div>
 
-  <!-- LOGIN VIEW -->
-  <main id="loginView" class="center-screen" aria-live="polite">
-    <div class="auth-card" role="region" aria-label="Login">
-      <h1 class="brand">Video Tracker</h1>
-      <p class="muted">Sign in to continue</p>
-
-      <input id="email" type="email" placeholder="Email" autocomplete="username" inputmode="email" />
-      <input id="password" type="password" placeholder="Password" autocomplete="current-password" />
-
-      <div class="row" style="margin-top:8px;">
-        <button class="btn primary" id="emailBtn" onclick="emailSign()">Sign in with Email</button>
-        <button class="btn ghost register-btn" id="regBtn" onclick="registerEmail()">Register</button>
-      </div>
-
-      <div id="authMessage" class="error-text" role="status" aria-live="polite"></div>
-      <div id="authSuccess" class="success-text" aria-live="polite"></div>
-
-      <p class="muted small" style="margin-top:8px">Tip: Password must be at least 6 characters when registering.</p>
+  <!-- INTRO -->
+  <section class="section intro">
+    <div class="card">
+      <h1>For Pari ❤️</h1>
+      <p class="subtitle">Majhya dilapasun…</p>
     </div>
-  </main>
+  </section>
 
-  <!-- APP VIEW -->
-  <div id="appView" class="hidden">
-    <div class="mobile-topbar" id="mobileTopbar">
-      <div class="mobile-vt">
-        <div class="mobile-avatar" id="mobileAvatarLetter">A</div>
-        <div class="mobile-meta">
-          <div id="mobileProfileName" class="mobile-name">Asmit Kamble</div>
-          <div id="mobileProfileEmail" class="mobile-email">ashkamble149@gmail.com</div>
-        </div>
-      </div>
-      <div class="mobile-logout">
-        <button class="btn ghost small" onclick="signOutUser()">Logout</button>
+  <!-- MEMORIES -->
+  <section class="section red">
+    <div class="card">
+      <h2>Our Memories ❤️</h2>
+      <div class="photos">
+        <img src="photo1.jpg">
+        <img src="photo2.jpg">
+        <img src="photo3.jpg">
+        <img src="photo4.jpg">
+        <img src="photo5.jpg">
+        <img src="photo6.jpg">
       </div>
     </div>
+  </section>
 
-    <div class="app-shell">
-      <aside class="sidebar" id="sidebar">
-        <div class="logo">VT</div>
-        <nav>
-          <button class="navlink" onclick="showSection('dashboard')">Dashboard</button>
-          <button class="navlink" onclick="showSection('uploads')">Uploads</button>
-          <button class="navlink" onclick="showSection('contact')">Contact</button>
-        </nav>
-
-        <div class="profile">
-          <div class="avatar" id="avatarLetter">A</div>
-          <div class="meta">
-            <div id="profileName">Asmit Kamble</div>
-            <div id="profileEmail" class="profile-email muted">ashkamble149@gmail.com</div>
-          </div>
-          <button class="btn ghost" onclick="signOutUser()">Logout</button>
-        </div>
-      </aside>
-
-      <main class="main" id="mainContent">
-        <section id="section-dashboard" class="card header">
-          <div style="display:flex;flex-direction:column;gap:10px">
-            <div style="display:flex;align-items:center;justify-content:space-between">
-              <h2 style="margin:0">Overview</h2>
-              <div id="clock" class="muted"></div>
-            </div>
-
-            <div class="grid" style="margin-top:12px">
-              <div class="card stat">
-                <div class="muted">Total Uploads</div>
-                <div id="totalUploads" class="big">0</div>
-              </div>
-
-              <div class="card large">
-                <div class="muted">Uploads Over Time</div>
-                <canvas id="lineChart"></canvas>
-              </div>
-
-              <div class="card medium">
-                <div class="muted">Platform Distribution</div>
-                <canvas id="pieChart"></canvas>
-              </div>
-
-              <div class="card table-card" style="grid-column:1 / -1">
-                <div class="muted">Latest Uploads</div>
-                <div class="table-wrap">
-                  <table id="uploadTable"><thead><tr><th>Date</th><th>Platform</th><th>Title 1</th><th>Title 2</th><th>Title 3</th><th>Action</th></tr></thead><tbody></tbody></table>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section id="section-uploads" class="hidden" style="margin-top:14px">
-          <div class="card">
-            <h3>Add Upload (3 titles)</h3>
-            <div class="form-col">
-              <input type="date" id="u_date" />
-              <select id="u_platform"><option value="">Select Platform</option><option>YouTube</option><option>Instagram</option><option>Facebook</option></select>
-              <input id="u_title1" placeholder="Title 1 (required)" />
-              <input id="u_title2" placeholder="Title 2 (optional)" />
-              <input id="u_title3" placeholder="Title 3 (optional)" />
-              <div style="display:flex;gap:10px;flex-wrap:wrap">
-                <button class="btn primary" onclick="addUpload()">Save</button>
-                <button class="btn ghost" onclick="loadUploads()">Refresh</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="card" style="margin-top:16px">
-            <h3>Your Uploads</h3>
-            <div class="table-wrap">
-              <table id="uploadList"><thead><tr><th>Date</th><th>Platform</th><th>T1</th><th>T2</th><th>T3</th><th>Action</th></tr></thead><tbody></tbody></table>
-            </div>
-          </div>
-        </section>
-
-        <section id="section-contact" class="hidden" style="margin-top:14px">
-          <div class="card">
-            <h3>Contact Us</h3>
-            <p class="muted">Messages open your email client addressed to <strong>ashkamble149@gmail.com</strong></p>
-            <form id="contactForm" onsubmit="sendContact(event)">
-              <input id="c_name" placeholder="Your name" value="Asmit Kamble" />
-              <input id="c_email" type="email" placeholder="Your email" inputmode="email" />
-              <textarea id="c_message" placeholder="Your message"></textarea>
-              <div style="display:flex;gap:10px;flex-wrap:wrap">
-                <button class="btn primary" type="submit">Send</button>
-                <button class="btn ghost" type="button" onclick="resetContact()">Reset</button>
-              </div>
-            </form>
-          </div>
-        </section>
-      </main>
+  <!-- NAMES -->
+  <section class="section red">
+    <div class="card names">
+      <div class="heart-big">❤️</div>
+      <div class="names-text">Asmit & Pari</div>
     </div>
-  </div>
+  </section>
 
+  <!-- CUTE -->
+  <section class="section red">
+    <div class="card">
+      <p class="cute">Pari aik !!!!!</p>
+      <p class="cute">Pariii aikteys na i love you yrrr ❤️</p>
+    </div>
+  </section>
+
+  <!-- MESSAGE -->
+  <section class="section red">
+    <div class="card message">
+      <p>
+        Pari, tu jevha pasun majhya life madhe aali ahes na,
+        tevha pasun mi khup khush aahe.<br><br>
+
+        Ata ky emotional nako hou, asach aahe mi.<br><br>
+
+        — Asmit ❤️
+      </p>
+    </div>
+  </section>
+
+  <!-- END -->
+  <section class="section end">
+    <h1 class="big">HAPPY NEW YEAR<br>MY LOVE ❤️</h1>
+  </section>
+
+  <!-- JS -->
   <script src="script.js"></script>
 </body>
 </html>
